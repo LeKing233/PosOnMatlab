@@ -10,8 +10,7 @@ function result = calculateState(phi,w,f)
     global KF_X;
     global KF_K;
     global KF_P;
-    global GRAVITY;    
-    
+
     %初始
     ConstInit();%常量赋值
     StateInit(phi);%状态量初始化
@@ -71,7 +70,7 @@ function result = calculateState(phi,w,f)
          elseif  gaitPhase == -1 %计算错误
             
          end
-        AccENU = Cbn*f(:,i);
+        AccE
         %将计算结果添加进返回值结构体
         result.Phi = [result.Phi,Phi];
         result.V = [result.V,V];
@@ -83,8 +82,6 @@ function result = calculateState(phi,w,f)
         result.Cbn = [result.Cbn;zeros(1,3);Cbn];
 
         result.A = [result.A,A];
-
-        result.AccENU = [result.AccENU,AccENU];
      end
 end
 %% ----------------------变量初始化--------------------- 
