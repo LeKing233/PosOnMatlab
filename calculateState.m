@@ -10,7 +10,8 @@ function result = calculateState(phi,w,f)
     global KF_X;
     global KF_K;
     global KF_P;
-
+    global GRAVITY;    
+    
     %初始
     ConstInit();%常量赋值
     StateInit(phi);%状态量初始化
@@ -27,6 +28,8 @@ function result = calculateState(phi,w,f)
     result.Cbn = Cbn;
     result.A = zeros(3,1);
 
+    result.AccENU = zeros(3,1);
+
     %序列化迭代    
      for  i = 2:length(w)
         %记录上一时刻状态量
@@ -35,8 +38,8 @@ function result = calculateState(phi,w,f)
         P_prev = P;
         Phi_prev = Phi;
         %计算 
-%         Cbn = getUpdateCbn(Cbn_prev,w(:,i));
-        Cbn = getCbnFromPhi(phi(:,i));
+        Cbn = getUpdateCbn(Cbn_prev,w(:,i));
+%         Cbn = getCbnFromPhi(phi(:,i));
         [V,A] = getUpdateVn(V_prev,f(:,i),Cbn,f(:,i-1),Cbn_prev);
         P = getUpdatePn(P_prev,V,V_prev);
         Phi = getPhiFromCbn(Cbn); 
@@ -62,15 +65,15 @@ function result = calculateState(phi,w,f)
             %修正
             V = reviseVn(V);
             P = revisePn(P);
-%             Cbn = reviseCbn(Cbn);
-%             Phi = getPhiFromCbn(Cbn); 
+            Cbn = reviseCbn(Cbn);
+            Phi = getPhiFromCbn(Cbn); 
     
          elseif  gaitPhase == -1 %计算错误
             
          end
-        
+        AccENU = Cbn*f(:,i) -GRAVITY;
         %将计算结果添加进返回值结构体
-%         result.Phi = [result.Phi,Phi];
+        result.Phi = [result.Phi,Phi];
         result.V = [result.V,V];
         result.P = [result.P,P];
         result.GaitPhase = [result.GaitPhase,gaitPhase];
@@ -80,6 +83,8 @@ function result = calculateState(phi,w,f)
         result.Cbn = [result.Cbn;zeros(1,3);Cbn];
 
         result.A = [result.A,A];
+
+        result.AccENU = [result.AccENU,AccENU];
      end
 end
 %% ----------------------变量初始化--------------------- 
@@ -95,20 +100,29 @@ function ConstInit()
     global WINDOW_LENGTH;
     global GAIT_THRESHOLD;
 
-    
-    NOISE_W = [0.007;0.007;0.007];
-    NOISE_F = [0.001;0.001;0.001];
-    
-    NOISE_W_GAIT =  [20;20;20];
-    NOISE_F_GAIT =  [10;10;10];
+    w = 0.01;
+    f = 375;
+    r = 200;
 
-    NOISE_R = [0.00005;0.00005;0.00005];
+    NOISE_W = [w;w;w];
+    NOISE_F = [f;f;f];
+    NOISE_R = [r;r;r];
+
+    w_gait = 20;
+    f_gait = 10;
+
+    NOISE_W_GAIT =  [w_gait;w_gait;w_gait];
+    NOISE_F_GAIT =  [f_gait;f_gait;f_gait];
+    
+%     GAIT_THRESHOLD = 7.8;
+    GAIT_THRESHOLD = 7.8;
+    WINDOW_LENGTH = 10;
+    
     G = 9.8;
     GRAVITY  = [0;0;G];
     DELTA_T = 0.006;
 
-    GAIT_THRESHOLD = 7.8;
-    WINDOW_LENGTH = 10;
+   
 end
 
 function  StateInit(phi)
@@ -117,11 +131,10 @@ function  StateInit(phi)
     global P;
     global Cbn;
 
-    Phi = phi;
-    assignin("base","Phi",phi);
+    Phi = phi(:,1);
     V  = [0;0;0];
     P = [0;0;0];
-    Cbn = getCbnFromPhi(Phi(:,1));    
+    Cbn = getCbnFromPhi(Phi);    
 end 
 
 function KF_Init()
@@ -182,7 +195,7 @@ function crossMatrix = getCrossMatrix(v)
     % 计算反对称矩阵
     crossMatrix = [0, -v(3), v(2);
                    v(3), 0, -v(1);
-                   -v(2), v(1), 0];
+                   -v(2), v(1), 0];    
 end
 
 %% ----------------------状态更新预测--------------------- 
@@ -197,21 +210,37 @@ function  Cbn = getCbnFromPhi(phi)
            -sin(theta),sin(gamma)*cos(theta),cos(gamma)*cos(theta)];
 end
 
+
+%二子样算法
 function  Cbn = getUpdateCbn(Cbn_prev,w)
+    w = w * pi /180;
     global DELTA_T;
     I = eye(3);
     wx = getCrossMatrix(w);%角速度w构成的反对称矩阵[w×]
-    add = ((2*I + wx*DELTA_T)/(2*I - wx*DELTA_T));
     Cbn = Cbn_prev * ((2*I + wx*DELTA_T)/(2*I - wx*DELTA_T));
 end
 
-
+%姿态微分方程加定轴转动条件
+% function  Cbn = getUpdateCbn(Cbn_prev,w)
+%     w = w/180*pi;
+%     global DELTA_T;
+%     I = eye(3);
+%     wx = getCrossMatrix(w);%角速度w构成的反对称矩阵[w×]
+% 
+%     delta_theta = w*DELTA_T;
+%     delta_theta_x = getCrossMatrix(delta_theta);
+%     delta_theta_modulus = norm(delta_theta);%
+% 
+%     Cbn_trans = I + sin(delta_theta_modulus)/delta_theta_modulus*(delta_theta_x)...
+%         +(1-cos(delta_theta_modulus))/(delta_theta_modulus)^2*(delta_theta_x)*(delta_theta_x);
+%     Cbn = Cbn_prev * Cbn_trans;
+% end
 
 function [Vn,An] = getUpdateVn(Vn_prev,fn,Cbn,fn_prev,Cbn_prev)
     global DELTA_T;
     global GRAVITY;
     An = 0.5*(Cbn*fn+Cbn_prev*fn_prev) - GRAVITY;
-    Vn = Vn_prev + (0.5*(Cbn*fn+Cbn_prev*fn_prev) - GRAVITY)*DELTA_T;
+    Vn = Vn_prev + (0.5*(Cbn*fn+Cbn_prev*fn_prev) - GRAVITY ) * DELTA_T;
 end
 
 function Pn = getUpdatePn(Pn_prev,Vn,Vn_prev)
@@ -225,42 +254,29 @@ function Phi = getPhiFromCbn(Cbn)
     T33  = Cbn(3,3);
     T32 = Cbn(3,2);
     roll = atan(Cbn(3,2)/Cbn(3,3));
-    if(abs(T33) <= threshold)
-        if(T32>=0)
-            roll = -pi/2;
-        else
-            roll = pi/2;
-        end
-    elseif T33<0
-        if(T32<0)
-            roll = pi - roll;
-        else %T32>0
-            roll = -pi - roll;
-        end
-    else % T33>=0 && abs(T33> threshold) 
-        roll = -roll;
+    %角度转换至[-pi,pi]
+    if(T33>0)
+        roll = roll;
+    else 
+        if(T32>0)
+            roll =  pi + roll;
+        else 
+            roll =  -pi + roll;
+        end 
     end
     Phi(1) = roll;
     %俯仰角Pitch  
-    Phi(2) = asin(-Cbn(3,3));
+    Phi(2) = asin(-Cbn(3,1));
     %航向角yaw
     yaw = atan(Cbn(2,1)/Cbn(1,1));
     T11 = Cbn(1,1);
-    T21 = Cbn(2,1);    
-    if(abs(T11) <= threshold)
-        if(T21>=0)
-            yaw = pi/2;
-        else %T21<0
-            yaw = 3/2*pi;
-        end
-    elseif T11>0
-        if(T21<0)
-            yaw = 2*pi + yaw;
-        else %T21>=0
-            yaw = yaw;
-        end
-    else % T11<=0 && abs(T11> threshold) 
-        yaw = pi + yaw;
+    T21 = Cbn(2,1);   
+    %角度转换至[-pi,pi]
+    if(T11<0&&T21<0)
+        yaw = yaw - pi;
+    end
+    if(T11<0&&T21>0)
+        yaw =  yaw + pi;
     end
     Phi(3) = yaw;
     
@@ -321,8 +337,8 @@ end
 function Cbn = reviseCbn(Cbn_prev) 
     global KF_X;
     I = eye(3);
-    delta_phi_x = getCrossMatrix(KF_X(1:3));
-    Cbn =  ((2*I + delta_phi_x)/(2*I - delta_phi_x)) * Cbn_prev;
+    delta_phi_x = getCrossMatrix(KF_X(1:3))*180/pi;
+    Cbn =  ((2*I + delta_phi_x)\(2*I - delta_phi_x)) * Cbn_prev;
 end 
 
 
