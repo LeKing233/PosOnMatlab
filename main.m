@@ -1,7 +1,7 @@
 % 清除工作区
-clear;
-close all;
-clc;
+% clear;
+% close all;
+% clc;
 
 %% 读取数据
 % data = readtable('./RawData/12_12_3quan_60.csv');
@@ -15,7 +15,8 @@ data = readtable('./RawData/DataSet919/100_1_zhixian.csv');
 
 
 %% 进行运算
-result = calculateState( ...
+stateCalculator  = StateCalculator();
+stateCalculator.solveState( ...
                 [data.AngleRoll';data.AnglePitch';data.AngleYaw'],...
                [data.AngularVelX';data.AngularVelY';data.AngularVelZ'], ...
                [data.AccX';data.AccY';data.AccZ'] ...
@@ -25,31 +26,47 @@ result = calculateState( ...
 %% 绘图
 %----------------------绘图控制--------------------- 
 Track_Figure        = true;  
-Velocity_Figure     = true;
-Phi_Figure          = true;
-Gait_Figure         = true;
-KF_X_Figure         = true;
-RawData_Figure      = true;
+Velocity_Figure     = false;
+Phi_Figure          = false;
+Gait_Figure         = false;
+KF_X_Figure         = false;
+RawData_Figure      = false;
+
+
 
 
 %轨迹图
 if Track_Figure
     figure(1)
+%     set(gcf, 'Position', get(0, 'Screensize'));
 %     plot(result.P(1,:),result.P(2,:));
 %     xlabel('X方向'); % x轴注解
 %     ylabel('Y方向'); % y轴注解
 %     title('轨迹图'); % 图形标题
 %     legend('二维轨迹'); % 图形注解
+%     axis equal
 %     grid on; % 显示格线
-
-    plot3(result.P(1,:),result.P(2,:),result.P(3,:));
+    subplot(1,2,1);
+    plot3(stateCalculator.StateSeq.P(1,:),stateCalculator.StateSeq.P(2,:),stateCalculator.StateSeq.P(3,:));
     xlabel('X方向'); % x轴注解
     ylabel('Y方向'); % y轴注解
     zlabel('Z方向'); % z轴注解
     title('轨迹图'); % 图形标题
     legend('三维轨迹'); % 图形注解
-    daspect([1 1 1])
+    axis equal
     grid on; % 显示格线
+
+    subplot(1,2,2);
+    plot(stateCalculator.StateSeq.P(1,:),stateCalculator.StateSeq.P(2,:));
+    xlabel('X方向'); % x轴注解
+    ylabel('Y方向'); % y轴注解
+    title('轨迹图'); % 图形标题
+    legend('二维轨迹'); % 图形注解
+    axis equal
+    grid on; % 显示格线
+
+
+
 end
 
 %速度图
@@ -77,7 +94,7 @@ if Phi_Figure
     xlabel('时间戳'); % x轴注解
     ylabel('欧拉角'); % y轴注解
     title('欧拉角曲线'); % 图形标题
-    legend('横滚角Roll','俯仰角Pitch','偏航角Yaw','传感器直出Roll','传感器直出Pitch','传感器直出Yaw'); % 图形注解
+    legend('横滚角Roll','俯仰角Pitch','偏航角Yaw'); % 图形注解
     grid on; % 显示格线
     
 end
@@ -163,14 +180,10 @@ if RawData_Figure
     plot(data.Timestamp,result.AccENU(3,:));hold on;
     xlabel('时间戳'); % x轴注解
     ylabel('加速度'); % y轴注解
-    title('ENU坐标系下的加速度曲线'); % 图形标题
+    title('ENU坐标系下的加速度曲线,Z轴减去重力加速度'); % 图形标题
     legend('X','Y','Z'); % 图形注解
     grid on; % 显示格线
     
 end
-
-
-
-
 
 
