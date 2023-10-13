@@ -23,18 +23,19 @@ classdef StateCalculator <handle
         %核心组件
         gaitDtr;%步态检测器
         zuptKF;%卡尔曼滤波器（零速度修正特殊版本）
+        utils;%工具函数集合
 
     end
 
     methods
        %构造函数
        function obj = StateCalculator()
-           %常量初始化
+            %常量初始化
             obj.gravityVec = [0;0;obj.gravity];
-            %创建步态检测器
-            obj.gaitDtr = GaitPhaseDetector();
-            %创建卡尔曼滤波器
-            obj.zuptKF = ZuptKalmanFilter();
+            %构建核心组件
+            obj.gaitDtr = GaitPhaseDetector();%创建步态检测器            
+            obj.zuptKF = ZuptKalmanFilter();%创建卡尔曼滤波器
+            obj.utils = UtilContainer();%创建工具函数集
             
        end
 
@@ -46,29 +47,34 @@ classdef StateCalculator <handle
             obj.Cbn = obj.getCbnFromPhi(obj.Phi);
             obj.GaitPhase = obj.gaitDtr.PhaseUnknown;
             obj.gaitDtr.init();%步态检测初始化
-            obj.zuptKF.init();%滤波器初始化
-            %初始化状态序列结构体
-            obj.StateSeq = struct(  'V',obj.V,'P',obj.P,'Cbn',obj.Cbn,'Phi',obj.Phi,...
-                                    'GaitPhase',obj.GaitPhase, ...                                    
-                                    'KF_X',obj.zuptKF.X, 'KF_P',obj.zuptKF.P,'KF_K',obj.zuptKF.K...
+            obj.zuptKF.init();%滤波器初始化 
+            obj.initStateSeq();
+            obj.saveStateToSeq();
+
+       end
+       
+        
+       function  initStateSeq(obj)
+            obj.StateSeq = struct(  'V',MatList(),'P',MatList(),'Cbn',MatList(),'Phi',MatList(),...
+                                    'GaitPhase',MatList(), ...                                    
+                                    'KF_X',MatList(), 'KF_P',MatList(),'KF_K',MatList()...
                                  );
        end
-    
+
 
        %将结果保存进序列
        function saveStateToSeq(obj)
-           %状态量
-           obj.StateSeq.V = [obj.StateSeq.V,obj.V];
-           obj.StateSeq.P = [obj.StateSeq.P,obj.P];
-           obj.StateSeq.Phi = [obj.StateSeq.Phi,obj.Phi];
-           obj.StateSeq.Cbn = [obj.StateSeq.Cbn;zeros(1,3);obj.Cbn];
-           %步态检测参数
-           obj.StateSeq.GaitPhase = [obj.StateSeq.GaitPhase,obj.GaitPhase];
-           %kalman滤波器参数
-           obj.StateSeq.KF_X = [obj.StateSeq.KF_X,obj.zuptKF.X];
-           obj.StateSeq.KF_P = [obj.StateSeq.KF_P;999*ones(1,9);obj.zuptKF.P];
-           obj.StateSeq.KF_K = [obj.StateSeq.KF_K;999*ones(1,3);obj.zuptKF.K];
-
+            %状态量
+            obj.StateSeq.V.addOne(obj.V);
+            obj.StateSeq.P.addOne(obj.P);
+            obj.StateSeq.Phi.addOne(obj.Phi);
+            obj.StateSeq.Cbn.addOne([zeros(1,3);obj.Cbn]);
+            %步态检测参数
+            obj.StateSeq.GaitPhase.addOne(obj.GaitPhase);
+            %kalman滤波器参数
+            obj.StateSeq.KF_X.addOne(obj.zuptKF.X);
+            obj.StateSeq.KF_P.addOne([9999*ones(1,9);obj.zuptKF.P]);
+            obj.StateSeq.KF_K.addOne([9999*ones(1,3);obj.zuptKF.K]);
        end
        
        %状态解算
@@ -79,7 +85,7 @@ classdef StateCalculator <handle
             obj.phiSeq = phiSeq;
             obj.stateInit(obj.phiSeq(:,1));%状态初始化
                 
-            %序列化迭代计算
+%             %序列化迭代计算
             for i = 2:length(wSeq)
                 %记录上一时刻状态量
                 Cbn_prev = obj.Cbn;
@@ -103,16 +109,16 @@ classdef StateCalculator <handle
                 elseif obj.GaitPhase == obj.gaitDtr.PhaseStance
                     %支撑相
                     %预测
-                    F = obj.getF(obj.Cbn,fSeq(:,i));
-                    G = obj.getG(obj.Cbn);
+                    F = obj.zuptKF.getF(obj,obj.Cbn,fSeq(:,i));
+                    G = obj.zuptKF.getG(obj,obj.Cbn);
                     obj.zuptKF.predict(F,G);
                     %更新
                     Z = -obj.V;
                     obj.zuptKF.update(Z);
                     %修正
-                    obj.reviseVn(obj.zuptKF.X(4:6));
-                    obj.revisePn(obj.zuptKF.X(7:9));
-                    obj.reviseCbn(obj.zuptKF.X(1:3));
+                    obj.zuptKF.reviseVn(obj,obj.zuptKF.X(4:6));
+                    obj.zuptKF.revisePn(obj,obj.zuptKF.X(7:9));
+                    obj.zuptKF.reviseCbn(obj,obj.zuptKF.X(1:3));
                     obj.Phi = obj.getPhiFromCbn(obj.Cbn); 
             
                  elseif  obj.GaitPhase == obj.gaitDtr.PhaseUnknown %计算错误
@@ -175,7 +181,7 @@ classdef StateCalculator <handle
         function  calculateNextCbn(obj,Cbn_prev,w)
             w = w * pi /180;%弧度制转角度制
             I = eye(3);
-            wx = obj.getCrossMatrix(w);%角速度w构成的反对称矩阵[w×]
+            wx = obj.utils.getCrossMatrix(w);%角速度w构成的反对称矩阵[w×]
             obj.Cbn = Cbn_prev * ((2*I + wx* obj.delta_t)/(2*I - wx*obj.delta_t));
         end
         
@@ -188,50 +194,6 @@ classdef StateCalculator <handle
         function calculateNextP(obj,Pn_prev,Vn,Vn_prev)
             obj.P = Pn_prev + 0.5*(Vn_prev + Vn) * obj.delta_t;
         end
-
-        %获取状态转移矩阵F
-        function F = getF(obj,Cbn,fn)            
-            I = eye(3);
-            ZeroMatrix = zeros(3,3);
-            F = [I,ZeroMatrix,ZeroMatrix;
-                 (obj.getCrossMatrix(Cbn*fn))*obj.delta_t,I,ZeroMatrix;
-                 ZeroMatrix,I*obj.delta_t,I];
-        end
-
-        %获取误差分配矩阵G
-        function G = getG(obj,Cbn)
-            ZeroMatrix = zeros(3,3);
-            G = [-Cbn*obj.delta_t,ZeroMatrix;
-                 ZeroMatrix,Cbn*obj.delta_t;
-                 ZeroMatrix,ZeroMatrix];
-        end
-
-       %速度更新
-       function reviseVn(obj,vel_error)
-            obj.V = obj.V + vel_error;
-       end 
-
-        %位移更新
-        function revisePn(obj,pos_error)
-            obj.P = obj.P + pos_error;
-        end
-       
-        %姿态更新
-        function reviseCbn(obj,phi_error) 
-            I = eye(3);
-            phi_error_x = obj.getCrossMatrix(phi_error)*180/pi;
-            obj.Cbn =  ((2*I + phi_error_x)\(2*I - phi_error_x)) * obj.Cbn;
-        end 
-
-        
-        % 计算三维向量的反对称矩阵
-        function crossMatrix = getCrossMatrix(obj,v)
-            crossMatrix = [0, -v(3), v(2);
-                           v(3), 0, -v(1);
-                           -v(2), v(1), 0];    
-        end
-        
-        
 
     end
 end

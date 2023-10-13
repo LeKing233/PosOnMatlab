@@ -1,7 +1,7 @@
 % 清除工作区
-% clear;
-% close all;
-% clc;
+clear;
+close all;
+clc;
 
 %% 读取数据
 % data = readtable('./RawData/12_12_3quan_60.csv');
@@ -32,6 +32,7 @@ Gait_Figure         = false;
 KF_X_Figure         = false;
 RawData_Figure      = false;
 
+ P = stateCalculator.StateSeq.P.toMat();
 
 
 
@@ -47,7 +48,8 @@ if Track_Figure
 %     axis equal
 %     grid on; % 显示格线
     subplot(1,2,1);
-    plot3(stateCalculator.StateSeq.P(1,:),stateCalculator.StateSeq.P(2,:),stateCalculator.StateSeq.P(3,:));
+    P = stateCalculator.StateSeq.P.toMat();
+    plot3(P(1,:),P(2,:),P(3,:));
     xlabel('X方向'); % x轴注解
     ylabel('Y方向'); % y轴注解
     zlabel('Z方向'); % z轴注解
@@ -57,7 +59,7 @@ if Track_Figure
     grid on; % 显示格线
 
     subplot(1,2,2);
-    plot(stateCalculator.StateSeq.P(1,:),stateCalculator.StateSeq.P(2,:));
+    plot(P(1,:),P(2,:));
     xlabel('X方向'); % x轴注解
     ylabel('Y方向'); % y轴注解
     title('轨迹图'); % 图形标题
