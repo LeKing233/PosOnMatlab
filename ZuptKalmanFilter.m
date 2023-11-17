@@ -9,7 +9,7 @@ classdef ZuptKalmanFilter <handle
         H;    %observation Matrix
         %参数，用于构建系统噪声矩阵Q和观测噪声矩阵R
         noise_w = 0.01 * ones(3,1);     %陀螺仪噪声
-        noise_f = 375  * ones(3,1);     %加速度计噪声
+        noise_f = 600 * ones(3,1);     %加速度计噪声
         noise_r = 200  * ones(3,1);     %系统噪声（速度噪声）  
         %依赖组件
         utils;%工具函数集合

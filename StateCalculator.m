@@ -12,7 +12,7 @@ classdef StateCalculator <handle
         %原始数据序列
         wSeq;%角速度序列
         fSeq;%加速度序列
-        phiSeq;%欧拉角序列
+
         
 
         %常量
@@ -21,22 +21,28 @@ classdef StateCalculator <handle
         gravityVec;      %重力加速度向量
 
         %核心组件
+        imuHandler;%imu数据
+        plantarHandler;%足底压力传感器数据
         gaitDtr;%步态检测器
         zuptKF;%卡尔曼滤波器（零速度修正特殊版本）
+        aligner;%姿态初始对准器
         utils;%工具函数集合
+
 
     end
 
     methods
        %构造函数
-       function obj = StateCalculator()
+       function obj = StateCalculator(imuHandler,plantarHandler)
             %常量初始化
             obj.gravityVec = [0;0;obj.gravity];
             %构建核心组件
-            obj.gaitDtr = GaitPhaseDetector();%创建步态检测器            
-            obj.zuptKF = ZuptKalmanFilter();%创建卡尔曼滤波器
-            obj.utils = UtilContainer();%创建工具函数集
-            
+            obj.imuHandler = imuHandler;
+            obj.plantarHandler = plantarHandler;
+            obj.gaitDtr = GaitPhaseDetector(); %步态检测器            
+            obj.zuptKF  = ZuptKalmanFilter();  %卡尔曼滤波器
+            obj.aligner = Aligner();           %姿态对准器
+            obj.utils   = UtilContainer();     %工具函数集
        end
 
        %状态初始化
@@ -78,29 +84,36 @@ classdef StateCalculator <handle
        end
        
        %状态解算
-       function solveState(obj,phiSeq,wSeq,fSeq) 
+       function solveState(obj) 
+
             %结果赋初值
-            obj.wSeq = wSeq;
-            obj.fSeq = fSeq;
-            obj.phiSeq = phiSeq;
-            obj.stateInit(obj.phiSeq(:,1));%状态初始化
+            obj.wSeq = [obj.imuHandler.mRawData.AngularVelX';
+                        obj.imuHandler.mRawData.AngularVelY';
+                        obj.imuHandler.mRawData.AngularVelZ'];
+            obj.fSeq = [obj.imuHandler.mRawData.AccX';
+                        obj.imuHandler.mRawData.AccY';
+                        obj.imuHandler.mRawData.AccZ'];
+            phi0 = [obj.imuHandler.mRawData.AngleRoll(1);
+                    obj.imuHandler.mRawData.AnglePitch(1);
+                    obj.imuHandler.mRawData.AngleYaw(1)];
+            obj.stateInit(phi0);%状态初始化
                 
 %             %序列化迭代计算
-            for i = 2:length(wSeq)
+            for i = 2:length(obj.wSeq)
                 %记录上一时刻状态量
                 Cbn_prev = obj.Cbn;
                 V_prev = obj.V;
                 P_prev = obj.P;
 
                 %计算当前时刻的状态量
-                obj.calculateNextCbn(Cbn_prev,wSeq(:,i));
-                obj.calculateNextV(V_prev,fSeq(:,i),obj.Cbn,fSeq(:,i-1),Cbn_prev);
+                obj.calculateNextCbn(Cbn_prev,obj.wSeq(:,i));
+                obj.calculateNextV(V_prev,obj.fSeq(:,i),obj.Cbn,obj.fSeq(:,i-1),Cbn_prev);
                 obj.calculateNextP(P_prev,obj.V,V_prev);
                 obj.Phi = obj.getPhiFromCbn(obj.Cbn); 
                 
                 %计算步态
-                obj.GaitPhase = obj.gaitDtr.getPhase(wSeq(:,1:i),...
-                                                      fSeq(:,1:i));
+                obj.GaitPhase = obj.gaitDtr.getPhase(obj.wSeq(:,1:i),...
+                                                      obj.fSeq(:,1:i));
                 %依据步态执行零速度更新
                 %零速度修正
                 if obj.GaitPhase == obj.gaitDtr.PhaseSwing 
@@ -109,7 +122,7 @@ classdef StateCalculator <handle
                 elseif obj.GaitPhase == obj.gaitDtr.PhaseStance
                     %支撑相
                     %预测
-                    F = obj.zuptKF.getF(obj,obj.Cbn,fSeq(:,i));
+                    F = obj.zuptKF.getF(obj,obj.Cbn,obj.fSeq(:,i));
                     G = obj.zuptKF.getG(obj,obj.Cbn);
                     obj.zuptKF.predict(F,G);
                     %更新
