@@ -1,0 +1,537 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>StateCalculator</title><meta name="generator" content="MATLAB 9.13"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-10-13"><meta name="DC.source" content="StateCalculator.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="keyword">classdef</span> StateCalculator &lt;handle
+
+    <span class="keyword">properties</span>
+        <span class="comment">%&#29366;&#24577;&#21464;&#37327;</span>
+        V;<span class="comment">%&#36895;&#24230;&#21521;&#37327;</span>
+        P;<span class="comment">%&#20301;&#31227;&#21521;&#37327;</span>
+        Cbn;<span class="comment">%&#23039;&#24577;&#30697;&#38453;</span>
+        Phi;<span class="comment">%&#27431;&#25289;&#35282;</span>
+        StateSeq;<span class="comment">%&#29366;&#24577;&#21521;&#37327;&#24207;&#21015;</span>
+
+        <span class="comment">%&#21407;&#22987;&#25968;&#25454;&#24207;&#21015;</span>
+        wSeq;<span class="comment">%&#35282;&#36895;&#24230;&#24207;&#21015;</span>
+        fSeq;<span class="comment">%&#21152;&#36895;&#24230;&#24207;&#21015;</span>
+        phiSeq;<span class="comment">%&#27431;&#25289;&#35282;&#24207;&#21015;</span>
+
+
+        <span class="comment">%&#24120;&#37327;</span>
+        delta_t;<span class="comment">%&#26356;&#26032;&#38388;&#38548;</span>
+        gravity;<span class="comment">%&#37325;&#21147;&#21152;&#36895;&#24230;</span>
+
+        <span class="comment">%&#26680;&#24515;&#32452;&#20214;</span>
+        gaitDetector;<span class="comment">%&#27493;&#24577;&#26816;&#27979;&#22120;</span>
+        zuptKF;<span class="comment">%&#21345;&#23572;&#26364;&#28388;&#27874;&#22120;&#65288;&#38646;&#36895;&#24230;&#20462;&#27491;&#29305;&#27530;&#29256;&#26412;&#65289;</span>
+
+
+
+    <span class="keyword">end</span>
+
+    <span class="keyword">methods</span>
+       <span class="comment">%&#26500;&#36896;&#20989;&#25968;</span>
+       <span class="keyword">function</span> obj = StateCalculator()
+            obj.delta_t = 0.006;<span class="comment">%&#26356;&#26032;&#38388;&#38548; (&#31186;)</span>
+            obj.gravity = 9.8;<span class="comment">%&#37325;&#21147;&#21152;&#36895;&#24230;&#25968;&#20540;(&#31859;&#27599;&#24179;&#26041;&#31186;)</span>
+
+            <span class="comment">%&#21019;&#24314;&#27493;&#24577;&#26816;&#27979;&#22120;</span>
+            gaitDetector = GaitPhaseDetector();
+            <span class="comment">%&#21019;&#24314;&#21345;&#23572;&#26364;&#28388;&#27874;&#22120;</span>
+            zuptKF = ZuptKalmanFilter();
+
+       <span class="keyword">end</span>
+
+       <span class="comment">%&#29366;&#24577;&#21021;&#22987;&#21270;</span>
+       <span class="keyword">function</span> stateInit(obj,phi0)
+            phi0
+            obj.Phi = phi0;
+            obj.V = zeros(3,1);
+            obj.P = zeros(3,1);
+            obj.Cbn = getCbnFromPhi(phi0);
+            <span class="comment">%&#21021;&#22987;&#21270;&#29366;&#24577;&#24207;&#21015;&#32467;&#26500;&#20307;</span>
+            obj.StateSeq = struct(<span class="string">'V'</span>,obj.V,<span class="string">'P'</span>,obj.P,<span class="string">'Cbn'</span>,obj.Cbn,<span class="string">'Phi'</span>,obj.Phi);
+       <span class="keyword">end</span>
+
+
+       <span class="comment">%&#23558;&#32467;&#26524;&#20445;&#23384;&#36827;&#24207;&#21015;</span>
+       <span class="keyword">function</span> saveStateToSeq(obj)
+           obj.StateSeq.V = [obj.StateSeq.V,obj.V];
+           obj.StateSeq.P = [obj.StateSeq.P,obj.P];
+           obj.StateSeq.Cbn = [obj.StateSeq.Cbn,obj.Cbn];
+           obj.StateSeq.Phi = [obj.StateSeq.Phi,obj.Phi];
+       <span class="keyword">end</span>
+
+       <span class="comment">%&#29366;&#24577;&#35299;&#31639;</span>
+       <span class="keyword">function</span> solveState(obj,phiSeq,wSeq,fSeq)
+            <span class="comment">%&#32467;&#26524;&#36171;&#21021;&#20540;</span>
+            obj.wSeq = wSeq;
+            obj.fSeq = fSeq;
+            obj.phiSeq = phiSeq;
+            obj.phiSeq(:,1)
+            stateInit(obj,obj.phiSeq(:,1));<span class="comment">%&#29366;&#24577;&#21021;&#22987;&#21270;</span>
+
+            <span class="comment">%&#24207;&#21015;&#21270;&#36845;&#20195;&#35745;&#31639;</span>
+            <span class="keyword">for</span> i = 2:length(wSeq)
+                <span class="comment">%&#35760;&#24405;&#19978;&#19968;&#26102;&#21051;&#29366;&#24577;&#37327;</span>
+                Cbn_prev = obj.Cbn;
+                V_prev = obj.V;
+                P_prev = obj.P;
+
+                <span class="comment">%&#35745;&#31639;&#24403;&#21069;&#26102;&#21051;&#30340;&#29366;&#24577;&#37327;</span>
+                calculateNextCbn(Cbn_prev,wSeq(:,i));
+                calculateNextV(V_prev,fSeq(:,i),obj.Cbn,fSeq(:,i-1),Cbn_prev);
+                calculateNextP(P_prev,obj.V,V_prev);
+                obj.Phi = getPhiFromCbn(obj.Cbn);
+
+                <span class="comment">%&#35745;&#31639;&#27493;&#24577;</span>
+                gaitPhase = obj.gaitDetector.getPhase(wSeq(:,i-obj.gaitDetector.windowLength:i),<span class="keyword">...</span>
+                                                      fSeq(:,i-obj.gaitDetector.windowLength:i));
+                <span class="comment">%&#20381;&#25454;&#27493;&#24577;&#25191;&#34892;&#38646;&#36895;&#24230;&#26356;&#26032;</span>
+                <span class="comment">%&#38646;&#36895;&#24230;&#20462;&#27491;</span>
+                <span class="keyword">if</span> gaitPhase == obj.gaitDetector.PhaseSwing
+                     <span class="comment">%&#25670;&#21160;&#30456;</span>
+                    obj.zuptKF.X = zeros(9,1); <span class="comment">%&#35823;&#24046;&#39033;&#32622;&#38646;</span>
+                <span class="keyword">elseif</span> gaitPhase == obj.gaitDetector.PhaseStance
+                    <span class="comment">%&#25903;&#25745;&#30456;</span>
+                    <span class="comment">%&#39044;&#27979;</span>
+                    F = getF(obj.Cbn,fSeq(:,i));
+                    G = getG(obj.Cbn);
+                    obj.zuptKF.predict(F,G);
+                    <span class="comment">%&#26356;&#26032;</span>
+                    Z = -obj.V;
+                    obj.zuptKF.update(Z);
+                    <span class="comment">%&#20462;&#27491;</span>
+                    reviseVn(obj.V);
+                    revisePn(obj.P);
+                    reviseCbn(obj.Cbn);
+                    obj.Phi = getPhiFromCbn(obj.Cbn);
+
+                 <span class="keyword">elseif</span>  gaitPhase == obj.gaitDetector.PhaseUnknown <span class="comment">%&#35745;&#31639;&#38169;&#35823;</span>
+
+                <span class="keyword">end</span>
+
+                <span class="comment">%&#23558;&#35745;&#31639;&#32467;&#26524;&#20445;&#23384;</span>
+                saveStateToSeq();
+
+
+
+
+            <span class="keyword">end</span>
+
+       <span class="keyword">end</span>
+
+
+       <span class="keyword">function</span> Phi = getPhiFromCbn(Cbn)
+            <span class="comment">%&#27178;&#28378;&#35282;Roll</span>
+            T33  = Cbn(3,3);
+            T32 = Cbn(3,2);
+            roll = atan(Cbn(3,2)/Cbn(3,3));
+            <span class="comment">%&#35282;&#24230;&#36716;&#25442;&#33267;[-pi,pi]</span>
+            <span class="keyword">if</span>(T33&gt;0)
+
+            <span class="keyword">else</span>
+                <span class="keyword">if</span>(T32&gt;0)
+                    roll =  pi + roll;
+                <span class="keyword">else</span>
+                    roll =  -pi + roll;
+                <span class="keyword">end</span>
+            <span class="keyword">end</span>
+            Phi(1) = roll;
+            <span class="comment">%&#20463;&#20208;&#35282;Pitch</span>
+            Phi(2) = asin(-Cbn(3,1));
+            <span class="comment">%&#33322;&#21521;&#35282;yaw</span>
+            yaw = atan(Cbn(2,1)/Cbn(1,1));
+            T11 = Cbn(1,1);
+            T21 = Cbn(2,1);
+            <span class="comment">%&#35282;&#24230;&#36716;&#25442;&#33267;[-pi,pi]</span>
+            <span class="keyword">if</span>(T11&lt;0&amp;&amp;T21&lt;0)
+                yaw = yaw - pi;
+            <span class="keyword">end</span>
+            <span class="keyword">if</span>(T11&lt;0&amp;&amp;T21&gt;0)
+                yaw =  yaw + pi;
+            <span class="keyword">end</span>
+            Phi(3) = yaw;
+
+            Phi = Phi'*180/pi;<span class="comment">%&#36716;&#32622;&#25104;&#21015;&#21521;&#37327;</span>
+        <span class="keyword">end</span>
+
+       <span class="comment">%&#20174;&#27431;&#25289;&#35282;&#33719;&#21462;&#23039;&#24577;&#30697;&#38453;</span>
+       <span class="keyword">function</span>  Cbn = getCbnFromPhi1(phi)
+            phi =  phi *pi/180;<span class="comment">%&#24359;&#24230;&#21046;&#36716;&#35282;&#24230;&#20540;</span>
+
+            gamma = phi(1);<span class="comment">%&#27178;&#28378;&#35282;roll</span>
+            theta = phi(2);<span class="comment">%&#20463;&#20208;&#35282;pitch</span>
+            psi = phi(3);<span class="comment">%&#32763;&#28378;&#35282;yaw</span>
+
+            Cbn = [cos(theta)*cos(psi),-cos(gamma)*sin(psi)+sin(gamma)*sin(theta)*cos(psi),sin(gamma)*sin(psi)+cos(gamma)*sin(theta)*cos(psi);
+                   cos(theta)*sin(psi),cos(gamma)*cos(psi)+sin(gamma)*sin(theta)*sin(psi),-sin(gamma)*cos(psi)+cos(gamma)*sin(theta)*sin(psi);
+                   -sin(theta),sin(gamma)*cos(theta),cos(gamma)*cos(theta)];
+        <span class="keyword">end</span>
+
+        <span class="comment">%&#23039;&#24577;&#30697;&#38453;&#35745;&#31639;&#8212;&#8212;&#20108;&#23376;&#26679;&#31639;&#27861;</span>
+        <span class="keyword">function</span>  calculateNextCbn(obj,w)
+            w = w * pi /180;<span class="comment">%&#24359;&#24230;&#21046;&#36716;&#35282;&#24230;&#21046;</span>
+            I = eye(3);
+            wx = getCrossMatrix(w);<span class="comment">%&#35282;&#36895;&#24230;w&#26500;&#25104;&#30340;&#21453;&#23545;&#31216;&#30697;&#38453;[w&times;]</span>
+            obj.Cbn = Cbn_prev * ((2*I + wx*DELTA_T)/(2*I - wx*DELTA_T));
+        <span class="keyword">end</span>
+
+        <span class="comment">%&#35745;&#31639;&#19979;&#19968;&#26102;&#21051;&#30340;&#36895;&#24230;</span>
+        <span class="keyword">function</span> calculateNextV(obj,Vn_prev,fn,Cbn,fn_prev,Cbn_prev)
+            obj.V = Vn_prev + (0.5*(Cbn*fn+Cbn_prev*fn_prev) - GRAVITY ) * DELTA_T;
+        <span class="keyword">end</span>
+
+        <span class="comment">%&#35745;&#31639;&#19979;&#19968;&#26102;&#21051;&#30340;&#20301;&#31227;</span>
+        <span class="keyword">function</span> calculateNextP(obj,Pn_prev,Vn,Vn_prev)
+            obj.P = Pn_prev + 0.5*(Vn_prev + Vn) * obj.delta_t;
+        <span class="keyword">end</span>
+
+        <span class="comment">%&#33719;&#21462;&#29366;&#24577;&#36716;&#31227;&#30697;&#38453;F</span>
+        <span class="keyword">function</span> F = getF(Cbn,fn,delta_t)
+            I = eye(3);
+            ZeroMatrix = zeros(3,3);
+            F = [I,ZeroMatrix,ZeroMatrix;
+                 (getCrossMatrix(Cbn*fn))*delta_t,I,ZeroMatrix;
+                 ZeroMatrix,I*delta_t,I];
+        <span class="keyword">end</span>
+
+        <span class="comment">%&#33719;&#21462;&#35823;&#24046;&#20998;&#37197;&#30697;&#38453;G</span>
+        <span class="keyword">function</span> G = getG(Cbn,delta_t)
+            ZeroMatrix = zeros(3,3);
+            G = [-Cbn*delta_t,ZeroMatrix;
+                 ZeroMatrix,Cbn*delta_t;
+                 ZeroMatrix,ZeroMatrix];
+        <span class="keyword">end</span>
+
+       <span class="comment">%&#36895;&#24230;&#26356;&#26032;</span>
+       <span class="keyword">function</span> reviseVn(obj,vel_corr)
+            obj.V = obj.V + vel_error;
+       <span class="keyword">end</span>
+
+        <span class="comment">%&#20301;&#31227;&#26356;&#26032;</span>
+        <span class="keyword">function</span> revisePn(obj,pos_error)
+            obj.P = obj.P + pos_error;
+        <span class="keyword">end</span>
+
+        <span class="comment">%&#23039;&#24577;&#26356;&#26032;</span>
+        <span class="keyword">function</span> reviseCbn(obj,phi_error)
+            I = eye(3);
+            phi_error_x = getCrossMatrix(phi_error)*180/pi;
+            obj.Cbn =  ((2*I + phi_error_x)\(2*I - phi_error_x)) * obj.Cbn;
+        <span class="keyword">end</span>
+
+
+        <span class="comment">% &#35745;&#31639;&#19977;&#32500;&#21521;&#37327;&#30340;&#21453;&#23545;&#31216;&#30697;&#38453;</span>
+        <span class="keyword">function</span> crossMatrix = getCrossMatrix(v)
+            crossMatrix = [0, -v(3), v(2);
+                           v(3), 0, -v(1);
+                           -v(2), v(1), 0];
+        <span class="keyword">end</span>
+
+
+
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+classdef StateCalculator <handle
+    
+    properties
+        %状态变量
+        V;%速度向量
+        P;%位移向量
+        Cbn;%姿态矩阵
+        Phi;%欧拉角
+        StateSeq;%状态向量序列
+        
+        %原始数据序列
+        wSeq;%角速度序列
+        fSeq;%加速度序列
+        phiSeq;%欧拉角序列
+        
+
+        %常量
+        delta_t;%更新间隔
+        gravity;%重力加速度
+        
+        %核心组件
+        gaitDetector;%步态检测器
+        zuptKF;%卡尔曼滤波器（零速度修正特殊版本）
+
+
+
+    end
+
+    methods
+       %构造函数
+       function obj = StateCalculator()
+            obj.delta_t = 0.006;%更新间隔 (秒)
+            obj.gravity = 9.8;%重力加速度数值(米每平方秒)
+            
+            %创建步态检测器
+            gaitDetector = GaitPhaseDetector();
+            %创建卡尔曼滤波器
+            zuptKF = ZuptKalmanFilter();
+            
+       end
+
+       %状态初始化
+       function stateInit(obj,phi0)
+            phi0
+            obj.Phi = phi0;
+            obj.V = zeros(3,1);
+            obj.P = zeros(3,1);
+            obj.Cbn = getCbnFromPhi(phi0);
+            %初始化状态序列结构体
+            obj.StateSeq = struct('V',obj.V,'P',obj.P,'Cbn',obj.Cbn,'Phi',obj.Phi);
+       end
+    
+
+       %将结果保存进序列
+       function saveStateToSeq(obj)
+           obj.StateSeq.V = [obj.StateSeq.V,obj.V];
+           obj.StateSeq.P = [obj.StateSeq.P,obj.P];
+           obj.StateSeq.Cbn = [obj.StateSeq.Cbn,obj.Cbn];
+           obj.StateSeq.Phi = [obj.StateSeq.Phi,obj.Phi];
+       end
+       
+       %状态解算
+       function solveState(obj,phiSeq,wSeq,fSeq) 
+            %结果赋初值
+            obj.wSeq = wSeq;
+            obj.fSeq = fSeq;
+            obj.phiSeq = phiSeq;
+            obj.phiSeq(:,1)
+            stateInit(obj,obj.phiSeq(:,1));%状态初始化
+                
+            %序列化迭代计算
+            for i = 2:length(wSeq)
+                %记录上一时刻状态量
+                Cbn_prev = obj.Cbn;
+                V_prev = obj.V;
+                P_prev = obj.P;
+
+                %计算当前时刻的状态量
+                calculateNextCbn(Cbn_prev,wSeq(:,i));
+                calculateNextV(V_prev,fSeq(:,i),obj.Cbn,fSeq(:,i-1),Cbn_prev);
+                calculateNextP(P_prev,obj.V,V_prev);
+                obj.Phi = getPhiFromCbn(obj.Cbn); 
+                
+                %计算步态
+                gaitPhase = obj.gaitDetector.getPhase(wSeq(:,i-obj.gaitDetector.windowLength:i),...
+                                                      fSeq(:,i-obj.gaitDetector.windowLength:i));
+                %依据步态执行零速度更新
+                %零速度修正
+                if gaitPhase == obj.gaitDetector.PhaseSwing 
+                     %摆动相
+                    obj.zuptKF.X = zeros(9,1); %误差项置零       
+                elseif gaitPhase == obj.gaitDetector.PhaseStance
+                    %支撑相
+                    %预测
+                    F = getF(obj.Cbn,fSeq(:,i));
+                    G = getG(obj.Cbn);
+                    obj.zuptKF.predict(F,G);
+                    %更新
+                    Z = -obj.V;
+                    obj.zuptKF.update(Z);
+                    %修正
+                    reviseVn(obj.V);
+                    revisePn(obj.P);
+                    reviseCbn(obj.Cbn);
+                    obj.Phi = getPhiFromCbn(obj.Cbn); 
+            
+                 elseif  gaitPhase == obj.gaitDetector.PhaseUnknown %计算错误
+                    
+                end
+                
+                %将计算结果保存
+                saveStateToSeq();
+
+
+
+
+            end
+
+       end
+
+    
+       function Phi = getPhiFromCbn(Cbn)
+            %横滚角Roll
+            T33  = Cbn(3,3);
+            T32 = Cbn(3,2);
+            roll = atan(Cbn(3,2)/Cbn(3,3));
+            %角度转换至[-pi,pi]
+            if(T33>0)
+                
+            else 
+                if(T32>0)
+                    roll =  pi + roll;
+                else 
+                    roll =  -pi + roll;
+                end 
+            end
+            Phi(1) = roll;
+            %俯仰角Pitch  
+            Phi(2) = asin(-Cbn(3,1));
+            %航向角yaw
+            yaw = atan(Cbn(2,1)/Cbn(1,1));
+            T11 = Cbn(1,1);
+            T21 = Cbn(2,1);   
+            %角度转换至[-pi,pi]
+            if(T11<0&&T21<0)
+                yaw = yaw - pi;
+            end
+            if(T11<0&&T21>0)
+                yaw =  yaw + pi;
+            end
+            Phi(3) = yaw;
+            
+            Phi = Phi'*180/pi;%转置成列向量
+        end
+
+       %从欧拉角获取姿态矩阵
+       function  Cbn = getCbnFromPhi1(phi)
+            phi =  phi *pi/180;%弧度制转角度值
+
+            gamma = phi(1);%横滚角roll
+            theta = phi(2);%俯仰角pitch
+            psi = phi(3);%翻滚角yaw
+            
+            Cbn = [cos(theta)*cos(psi),-cos(gamma)*sin(psi)+sin(gamma)*sin(theta)*cos(psi),sin(gamma)*sin(psi)+cos(gamma)*sin(theta)*cos(psi);
+                   cos(theta)*sin(psi),cos(gamma)*cos(psi)+sin(gamma)*sin(theta)*sin(psi),-sin(gamma)*cos(psi)+cos(gamma)*sin(theta)*sin(psi);
+                   -sin(theta),sin(gamma)*cos(theta),cos(gamma)*cos(theta)];
+        end
+        
+        %姿态矩阵计算——二子样算法
+        function  calculateNextCbn(obj,w)
+            w = w * pi /180;%弧度制转角度制
+            I = eye(3);
+            wx = getCrossMatrix(w);%角速度w构成的反对称矩阵[w×]
+            obj.Cbn = Cbn_prev * ((2*I + wx*DELTA_T)/(2*I - wx*DELTA_T));
+        end
+        
+        %计算下一时刻的速度
+        function calculateNextV(obj,Vn_prev,fn,Cbn,fn_prev,Cbn_prev)
+            obj.V = Vn_prev + (0.5*(Cbn*fn+Cbn_prev*fn_prev) - GRAVITY ) * DELTA_T;
+        end
+        
+        %计算下一时刻的位移
+        function calculateNextP(obj,Pn_prev,Vn,Vn_prev)
+            obj.P = Pn_prev + 0.5*(Vn_prev + Vn) * obj.delta_t;
+        end
+
+        %获取状态转移矩阵F
+        function F = getF(Cbn,fn,delta_t)            
+            I = eye(3);
+            ZeroMatrix = zeros(3,3);
+            F = [I,ZeroMatrix,ZeroMatrix;
+                 (getCrossMatrix(Cbn*fn))*delta_t,I,ZeroMatrix;
+                 ZeroMatrix,I*delta_t,I];
+        end
+
+        %获取误差分配矩阵G
+        function G = getG(Cbn,delta_t)
+            ZeroMatrix = zeros(3,3);
+            G = [-Cbn*delta_t,ZeroMatrix;
+                 ZeroMatrix,Cbn*delta_t;
+                 ZeroMatrix,ZeroMatrix];
+        end
+
+       %速度更新
+       function reviseVn(obj,vel_corr)
+            obj.V = obj.V + vel_error;
+       end 
+
+        %位移更新
+        function revisePn(obj,pos_error)
+            obj.P = obj.P + pos_error;
+        end
+       
+        %姿态更新
+        function reviseCbn(obj,phi_error) 
+            I = eye(3);
+            phi_error_x = getCrossMatrix(phi_error)*180/pi;
+            obj.Cbn =  ((2*I + phi_error_x)\(2*I - phi_error_x)) * obj.Cbn;
+        end 
+
+        
+        % 计算三维向量的反对称矩阵
+        function crossMatrix = getCrossMatrix(v)
+            crossMatrix = [0, -v(3), v(2);
+                           v(3), 0, -v(1);
+                           -v(2), v(1), 0];    
+        end
+        
+        
+
+    end
+end
+##### SOURCE END #####
+--></body></html>
