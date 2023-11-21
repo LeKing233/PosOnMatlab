@@ -60,11 +60,17 @@ stateCalculator.solveState();
 % pHandler.drawHeatMapInSection(1,size(pHandler.mRawData.valueMat,1),2);
 % pHandler.drawHeatMap(2);
 % pHandler.plotSumSeq();
+% pHandler.plotCOPNorm();
 pHandler.plotCOPSeq();
+pHandler.plotPressureCenterSeq();
 stateCalculator.plotHorizontalVelNorm();
 
 
 
+
+
+% pHandler.drawHeatMapOfAll(1);
+pHandler.drawHeatMapOfAllSaveToMp4(1);
 
 
 

@@ -27,8 +27,6 @@ classdef StateCalculator <handle
         zuptKF;%卡尔曼滤波器（零速度修正特殊版本）
         aligner;%姿态初始对准器
         utils;%工具函数集合
-
-
     end
 
     methods
