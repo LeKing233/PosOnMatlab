@@ -64,13 +64,14 @@ stateCalculator.solveState();
 pHandler.plotCOPSeq();
 pHandler.plotPressureCenterSeq();
 stateCalculator.plotHorizontalVelNorm();
+stateCalculator.plotHorizontalVelXY();
 
 
 
 
 
 % pHandler.drawHeatMapOfAll(1);
-pHandler.drawHeatMapOfAllSaveToMp4(1);
+% pHandler.drawHeatMapOfAllSaveToMp4(1);
 
 
 

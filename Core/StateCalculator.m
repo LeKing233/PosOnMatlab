@@ -21,8 +21,8 @@ classdef StateCalculator <handle
         gravityVec;      %重力加速度向量
 
         %核心组件
-        imuHandler;%imu数据
-        plantarHandler;%足底压力传感器数据
+        iHandler;%imu数据管理类
+        pHandler;%足底压力传感器数据管理类
         gaitDtr;%步态检测器
         zuptKF;%卡尔曼滤波器（零速度修正特殊版本）
         aligner;%姿态初始对准器
@@ -35,8 +35,8 @@ classdef StateCalculator <handle
             %常量初始化
             obj.gravityVec = [0;0;obj.gravity];
             %构建核心组件
-            obj.imuHandler = imuHandler;
-            obj.plantarHandler = plantarHandler;
+            obj.iHandler = imuHandler;
+            obj.pHandler = plantarHandler;
             obj.gaitDtr = GaitPhaseDetector(); %步态检测器            
             obj.zuptKF  = ZuptKalmanFilter();  %卡尔曼滤波器
             obj.aligner = Aligner();           %姿态对准器
@@ -85,15 +85,15 @@ classdef StateCalculator <handle
        function solveState(obj) 
 
             %结果赋初值
-            obj.wSeq = [obj.imuHandler.mRawData.AngularVelX';
-                        obj.imuHandler.mRawData.AngularVelY';
-                        obj.imuHandler.mRawData.AngularVelZ'];
-            obj.fSeq = [obj.imuHandler.mRawData.AccX';
-                        obj.imuHandler.mRawData.AccY';
-                        obj.imuHandler.mRawData.AccZ'];
-            phi0 = [obj.imuHandler.mRawData.AngleRoll(1);
-                    obj.imuHandler.mRawData.AnglePitch(1);
-                    obj.imuHandler.mRawData.AngleYaw(1)];
+            obj.wSeq = [obj.iHandler.mRawData.AngularVelX';
+                        obj.iHandler.mRawData.AngularVelY';
+                        obj.iHandler.mRawData.AngularVelZ'];
+            obj.fSeq = [obj.iHandler.mRawData.AccX';
+                        obj.iHandler.mRawData.AccY';
+                        obj.iHandler.mRawData.AccZ'];
+            phi0 = [obj.iHandler.mRawData.AngleRoll(1);
+                    obj.iHandler.mRawData.AnglePitch(1);
+                    obj.iHandler.mRawData.AngleYaw(1)];
             obj.stateInit(phi0);%状态初始化
                 
 %             %序列化迭代计算
@@ -213,9 +213,9 @@ classdef StateCalculator <handle
         function plotVelocity(obj)
             gcf = figure("Name","解算速度");
             Vel = obj.StateSeq.V.toMat();
-            plot(obj.imuHandler.mRawData.Timestamp,Vel(1,:));hold on
-            plot(obj.imuHandler.mRawData.Timestamp,Vel(2,:));hold on
-            plot(obj.imuHandler.mRawData.Timestamp,Vel(3,:));hold on
+            plot(obj.iHandler.mRawData.Timestamp,Vel(1,:));hold on
+            plot(obj.iHandler.mRawData.Timestamp,Vel(2,:));hold on
+            plot(obj.iHandler.mRawData.Timestamp,Vel(3,:));hold on
             xlabel('时间戳'); % x轴注解
             ylabel('速度'); % y轴注解
             title('三轴速度曲线'); % 图形标题
@@ -223,15 +223,15 @@ classdef StateCalculator <handle
             grid on; % 显示格线
         end
 
-        %三轴速度
-        function plotHorizontalVel(obj)
+        %X、Y轴速度
+        function plotHorizontalVelXY(obj)
             gcf = figure("Name","解算速度");
             Vel = obj.StateSeq.V.toMat();
-            plot(obj.imuHandler.mRawData.Timestamp,Vel(1,:));hold on
-            plot(obj.imuHandler.mRawData.Timestamp,Vel(2,:));
+            plot(obj.iHandler.mRawData.Timestamp,Vel(1,:));hold on
+            plot(obj.iHandler.mRawData.Timestamp,Vel(2,:));
             xlabel('时间戳'); % x轴注解
             ylabel('速度'); % y轴注解
-            title('三轴速度曲线'); % 图形标题
+            title('XY方向速度曲线——修正后'); % 图形标题
             legend('X轴速度','Y轴速度'); % 图形注解
             grid on; % 显示格线
         end   
@@ -246,13 +246,14 @@ classdef StateCalculator <handle
             for i = 1:size(Vel,2)
                 velNormVec(i) = norm([Vel(1,i),Vel(2,i)]);%求取x方向和y方向速度模长
             end
-            plot(obj.imuHandler.mRawData.Timestamp,velNormVec);
+            plot(obj.iHandler.mRawData.Timestamp,velNormVec);
             xlabel('时间戳/ms'); % x轴注解
             ylabel('速度模长/m/s'); % y轴注解
             title('水平方向速度模长曲线'); % 图形标题
             grid on; % 显示格线
-        end
+         end
 
+         
 
 
 
