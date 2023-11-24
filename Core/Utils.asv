@@ -1,0 +1,42 @@
+classdef Utils <handle
+    
+
+    %静态常量
+    properties(Constant)
+        
+
+        %IMU用
+        Phase_Static = 0.2;%静止
+        Phase_Active = 1.2;%活动
+
+        %plantar用
+        Phase_HeelStrike = -2;%脚跟着地
+        Phase_ToeOff = 2;%脚尖离地
+
+        Phase_Landing = 0.5;%脚着地
+        Phase_Floating = 2.5;%脚离地浮空
+
+        Phase_Unknown = -1;%未知情况
+
+
+
+        %最终的
+         Phase_Stance = 0;%静止
+        Phase_Swing = 1;%运动
+
+        
+    end
+
+    methods
+        function obj = Utils()
+            
+        end
+        % 计算三维向量的反对称矩阵
+        function crossMatrix = getCrossMatrix(obj,v)
+            crossMatrix = [0, -v(3), v(2);
+                           v(3), 0, -v(1);
+                           -v(2), v(1), 0];    
+        end
+        
+    end
+end

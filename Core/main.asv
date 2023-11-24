@@ -40,8 +40,8 @@ clc;
 % ImuFilePath = '../RawData/DataSet919/100_1_zhixian.csv';
 % PlantarFilePath = '../RawData/new1113/plantar_walk_100.csv';
 
-ImuFilePath = '../RawData/new1123/test_imu';
-PlantarFilePath = '../RawData/new1123/test_plantar.csv';
+ImuFilePath = '../RawData/new1118/imu_walk_100.csv';
+PlantarFilePath = '../RawData/new1118/plantar_walk_100.csv';
 
 
 
@@ -59,7 +59,7 @@ stateCalculator.solveState();
 %% 绘图
 % pHandler.drawHeatMapInSection(1,size(pHandler.mRawData.valueMat,1),2);
 % pHandler.drawHeatMap(2);
-% pHandler.plot_COPVelXSeq();
+pHandler.plot_COPVelXSeq();
 
 stateCalculator.plot_IMUGait_AND_Plantar();
 
@@ -69,8 +69,8 @@ stateCalculator.plot_IMUGait_AND_Plantar();
 % pHandler.drawHeatMapOfAllSaveToMp4(1);
 
 
-stateCalculator.plot_IMUGait_PlantarGait_Both();
-stateCalculator.plot_Track_3D();
+
+
 
 
 

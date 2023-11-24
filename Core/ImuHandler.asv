@@ -48,8 +48,38 @@ classdef ImuHandler <handle
     properties(Access = public)
         mGaitDtr;%步态相位检测器
     end    
+    methods(Access = public)     
+        %计算第index帧数据
+        function phase = getPhase(obj,index)            
+            if index < obj.mGaitDtr.windowLength
+                phase = Utils.Phase_Unknown;
+                obj.mGaitDtr.gaitPhaseSeq(index) = phase;
+                return;
+            end
+            wWinData = obj.getWinData(obj.mWSeq,index);
+            fWinData = obj.getWinData(obj.mFSeq,index);
+            
+            T = obj.getT(wWinData,fWinData);
+            
+            % 根据统计量获取步相
+            if T <  obj.mGaitDtr.threshold
+                phase = Utils.Phase_Stance;%支撑相
+            else
+                phase = Utils.Phase_Swing;%摆动相
+            end
 
-    %私有方法
+%             %将结果保存进序列
+            obj.mGaitDtr.gaitPhaseSeq(index) = phase;
+            obj.mGaitDtr.T_Seq(index) = T;
+        end
+
+        function getGaitPhase(obj)
+            
+            
+        end
+    end
+
+
     methods(Access = private)
          %步态检测器初始化
         function GaitDtrInit(obj)
@@ -59,8 +89,8 @@ classdef ImuHandler <handle
             obj.mGaitDtr.gravity = 9.8;%加速度数值
             obj.mGaitDtr.windowLength = 10;%窗口长度
             %初始化结果序
-            obj.mGaitDtr.gaitPhaseSeq = zeros(obj.mSeqLength,1);%步态检测结果序列-初始化分配内存
-            obj.mGaitDtr.T_seq = zeros(obj.mSeqLength,1);%统计量序列初始化分配内存
+            obj.mGaitDtr.gaitPhaseSeq = zeros(obj.mSeqLength);%步态检测结果序列-初始化分配内存
+            obj.mGaitDtr.T_seq = zeros(obj.mSeqLength);%统计量序列初始化分配内存
         end
 
         %计算统计量
@@ -83,44 +113,7 @@ classdef ImuHandler <handle
         function WinData = getWinData(obj,dataSeq,index)
             WinData = dataSeq(:,index-(obj.mGaitDtr.windowLength-1):index);
         end
-     end
-    
-    % 公有方法
-    methods(Access = public)     
-        %计算第index帧数据
-        function phase = getPhase(obj,index)            
-            if index < obj.mGaitDtr.windowLength
-                phase = Utils.Phase_Unknown;
-                obj.mGaitDtr.gaitPhaseSeq(index) = phase;
-                return;
-            end
-            wWinData = obj.getWinData(obj.mWSeq,index);
-            fWinData = obj.getWinData(obj.mFSeq,index);
-            
-            T = obj.getT(wWinData,fWinData);
-            
-            % 根据统计量获取步相
-            if T <  obj.mGaitDtr.threshold
-                phase = Utils.Phase_Static;%静止
-            else
-                phase = Utils.Phase_Active;%活动
-            end
-
-            % 将结果保存进序列
-            obj.mGaitDtr.gaitPhaseSeq(index) = phase;
-            obj.mGaitDtr.T_Seq(index) = T;
-        end
-        
-        %计算GaitPhase序列
-        function calculateGaitPhaseSeq(obj)
-            for i = 1:obj.mSeqLength                
-                obj.getPhase(i);
-            end
-        end
     end
-
-
-   
 
     %% 绘图函数
         

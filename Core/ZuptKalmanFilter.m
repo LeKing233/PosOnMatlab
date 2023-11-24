@@ -26,7 +26,7 @@ classdef ZuptKalmanFilter <handle
             obj.R = diag([obj.noise_r(1)^2,obj.noise_r(2)^2,obj.noise_r(3)^2]);
             obj.H = [zeros(3,3),eye(3,3),zeros(3,3)];
             %构建核心组件
-            obj.utils = UtilContainer();    
+            obj.utils = Utils();    
         end
 
         %初始化

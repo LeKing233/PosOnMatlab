@@ -2,38 +2,57 @@ classdef PlantarHandler <handle
    
 
     properties(Access = public)
+        %常量
         mFilePath;%文件路径
-        mRawData;%原始数据      
-        mProdData;%处理过数据
         mPosCoordMat;%定义压力数据点位置
         mFrameSize;%帧长度
         mSeqLength;%序列长度
         mNx;%X方向上网格数
         mNy;%Y方向上网格数
         mFrameInterval;%帧间隔时间（毫秒）
+        mFrameIntervalIMU;%imu帧间隔
+
+
+        %变量
+        mRawData;%原始数据      
+        mProdData;%处理过数据
         mHeatMapGcf;%热力图figure句柄
+        
+        %计算结果
+        mSumSeq;
+        mCOPSeq;
+        mCOPVelSeq;
+        mGaitPhaseSeq;
+        mLogicResults;
+        mHeelLocs;
+        
+        %依赖组件
+        iHandler;%imu管理类
     end
     
     %公共方法
     methods(Access = public)
         %% 初始化
         %构造函数
-        function obj = PlantarHandler(filePath)
-            obj.mFilePath = filePath;                    
+        function obj = PlantarHandler(filePath,imuHandler)
+            obj.mFilePath = filePath;         
+            obj.iHandler = imuHandler;
             obj.extractData();
+            obj.matchRawDataWithIMU(obj.iHandler.mRawData.Timestamp,obj.iHandler.mRawData.TimeSinceCollection);
             obj.init(); 
+            obj.calculateRequireData();
         end
 
         % 提取数据
         function extractData(obj)
-            rawDataTable = readtable(obj.mFilePath, 'Format', '%d%d%s', 'Delimiter', ',');
-            % 提取压力数据字符串
-            str = rawDataTable.PlantarValue;
-            % 初始化压力数据矩阵（i行，45列）
-            valueMat = zeros(height(rawDataTable), 45);
-            % 将压力数据字符串转换为向量，并存入矩阵
+            rawDataTable = readtable(obj.mFilePath, 'Format', '%d%d%s', 'Delimiter', ',');          
+            str = rawDataTable.PlantarValue;% 提取压力数据字符串            
+            valueMat = zeros(height(rawDataTable), 45);% 初始化压力数据矩阵（i行，45列）
             for i = 1:height(rawDataTable)
-                valueMat(i,:) = str2double(split(str{i}, ';'));
+                valueMat(i,:) = str2double(split(str{i}, ';'));%通过将表中数据按照";"进行分割，获取数据第i帧             
+                for j = 1:size(valueMat(i,:))
+                    valueMat(i,j) = obj.voltageToForce(valueMat(i,j));%将电压转换成压力值
+                end
             end
             obj.mRawData.TimeSinceCollection = rawDataTable.TimeSinceCollection;
             obj.mRawData.Timestamp = rawDataTable.Timestamp;
@@ -42,8 +61,51 @@ classdef PlantarHandler <handle
         
         end
         
-        %从压力数据转换成电压数据
+        %与imu数据进行匹配，基于imu的时间戳序列，对数据进行插值
+        function matchRawDataWithIMU(obj,imuTimeSeq,imuTimeSinceCollectionSeq)
+           originalRawData = obj.mRawData;%缓存插值之前的
+            % 指定备选插值方法：'linear'、'nearest'、'next'、'previous'、'pchip'、'cubic'、'v5cubic'、'makima' 或 'spline'。默认方法为 'linear'。
+           obj.mRawData.valueMat = interp1(double(obj.mRawData.Timestamp),obj.mRawData.valueMat,double(imuTimeSeq),'linear');
+           obj.mRawData.Timestamp = imuTimeSeq;
+           obj.mRawData.TimeSinceCollection = imuTimeSinceCollectionSeq;
+            
+            %因为数据序列时间戳有错位，头尾数据会出现NaN，进行处理
+           if(originalRawData.Timestamp(1)<imuTimeSeq(1))
+               
+              %plantar数据提前于imu
+              for i = size(imuTimeSeq,1):-1:size(imuTimeSeq,1)-10                  
+                %判断结尾的几个数是不是NAN，是的话用最后一帧补全
+                if isnan(obj.mRawData.valueMat(i,1))
+                   obj.mRawData.valueMat(i,:) = originalRawData.valueMat(end,:);           
+                end
+              end
+           else
+               %plantar数据滞后于imu
+                for i = 1:10                    
+                    %判断开头的几个数是不是NAN，是的话用第一帧补全
+                    if isnan(obj.mRawData.valueMat(i,1))
+                        obj.mRawData.valueMat(i) = originalRawData.valueMat(1);
+                    end
+                end
+           end
+           obj.mRawData.Timestamp = int32( obj.mRawData.Timestamp );%将所有时间戳重新转换成in32
+           
+        end
 
+
+        
+        % @brief 将电压值转换成压力值 
+        % @param 电压值（uint16)  (mV）
+        % @retval 压力值（牛顿）
+        function force = voltageToForce(obj,volt)
+            %拟合的参数
+            a =624.1 ;
+            b =0.6779;
+            c =0.2652;
+            %拟合公式
+            force = a*exp(-((volt-b)./c).^2);
+        end
+        
         %初始化
         function init(obj)
             %按照发送格式的45个点顺序，对左脚来说，以左下角为坐标原点，进行坐标录入
@@ -100,10 +162,23 @@ classdef PlantarHandler <handle
             obj.mFrameSize = size(obj.mPosCoordMat,1);%单帧压力点数
             %序列间隔时间，取平均值得到
             obj.mFrameInterval = double((obj.mRawData.TimeSinceCollection(end)-obj.mRawData.TimeSinceCollection(1))/obj.mSeqLength);
-            
+            obj.mFrameIntervalIMU = 6;
             obj.preProcessData();%对数据进行预处理
-
         end
+
+        %获取需要的数据
+        function calculateRequireData(obj)
+            obj.mSumSeq = obj.getSumSeq();
+            obj.mCOPSeq = obj.getCOPSeq();
+            obj.mCOPVelSeq = obj.getCOPVelSeq();
+            obj.getGaitPhaseSeq();
+        end
+        
+
+            
+
+        
+
         %% 单帧数据处理
 
         %数据预处理
@@ -137,7 +212,7 @@ classdef PlantarHandler <handle
         end     
 
         %求解第index帧的压力中心坐标
-        function pos = getPressureCenter(obj,index)
+        function pos = getCOP(obj,index)
             pos = zeros(1,2);
             sumX = 0;
             sumY = 0;
@@ -158,10 +233,10 @@ classdef PlantarHandler <handle
 
         end
         %获取压力中心序列
-        function pCenterSeq = getPressureCenterSeq(obj)
+        function pCenterSeq = getCOPSeq(obj)
             pCenterSeq = zeros(obj.mSeqLength,2);%预先分配内存,i行2列，第一列X，第二列Y
             for i = 1:obj.mSeqLength
-                pos = obj.getPressureCenter(i);
+                pos = obj.getCOP(i);
                 pCenterSeq(i,1) = pos(1);
                 pCenterSeq(i,2) = pos(2);
             end
@@ -169,14 +244,14 @@ classdef PlantarHandler <handle
         
 
         % 求解COP速度序列
-        function copSeq = getCOPSeq(obj)
+        function copSeq = getCOPVelSeq(obj)
             copSeq = zeros(obj.mSeqLength,2);%i行两列，第一列：X方向速度，第二列：y方向速度
             copSeq(1,:) = zeros(1,2);%初始值为零
             for i = 2:obj.mSeqLength
                 t_Now = obj.mRawData.TimeSinceCollection(i);%当前时间
                 t_Prev = obj.mRawData.TimeSinceCollection(i-1);%上一时刻时间
                 delta_t = double(t_Now - t_Prev)*0.001;                
-                copSeq(i,:)= (obj.getPressureCenter(i)-obj.getPressureCenter(i-1))/delta_t;
+                copSeq(i,:)= (obj.getCOP(i)-obj.getCOP(i-1))/delta_t;
             end
         end
 
@@ -184,15 +259,85 @@ classdef PlantarHandler <handle
         %噪声滤波器
         % （去除悬空时传感器感知到的压力数据,其因鞋底和传感器接触产生）
         function noiseFilter(obj)
+            obj.mProdData  = obj.mRawData;
             for i = 1:obj.mSeqLength           
                 for j = 1:obj.mFrameSize
                     if obj.mRawData.valueMat(i,j) < 2%阈值
                         obj.mProdData.valueMat(i,j) = 0;%小于阈值认为是零
-                    else
-                        obj.mProdData.valueMat(i,j) = obj.mRawData.valueMat(i,j);%大于阈值不做处理
-                    end                    
+                    end
                 end
             end            
+        end
+
+
+        %% 步态检测
+        %获取单点步态
+        function phase = getGaitPhase(obj,index)
+            phase = obj.mGaitPhaseSeq(index);
+        end
+        
+        %计算步态相位序列
+        function getGaitPhaseSeq(obj)
+            obj.mGaitPhaseSeq = zeros(obj.mSeqLength,1);
+             [pks,HeelLocs] = findpeaks(obj.mCOPVelSeq(:,2),'Threshold',150);             
+             [pks,ToeLocs] = findpeaks(-obj.mCOPVelSeq(:,2),'Threshold',300);
+             
+             COPYVelSeq = obj.mCOPVelSeq(:,2);%获取COP速度序列
+
+             %通过循环，将mGaitPhase中的指定索引改成检测到的相位
+             for i = 1:size(ToeLocs,1)
+                 loc = ToeLocs(i);%获取峰值索引
+                 if loc+2<obj.mSeqLength%判断索引是否合理
+                     if (COPYVelSeq(loc+1) == 0) && (COPYVelSeq(loc+2) == 0)
+                         %如果峰值后面两位都为0
+                         %确认为脚尖离地
+                        obj.mGaitPhaseSeq(loc) = Utils.Phase_ToeOff; 
+                     end
+                 else
+                     %索引为末尾，直接认为是脚尖离地
+                    obj.mGaitPhaseSeq(loc) = Utils.Phase_ToeOff;
+                 end
+                
+             end                
+             for i = 1:size(HeelLocs,1)
+                 loc = HeelLocs(i);%获取峰值索引
+                 if loc-2>0 %判断索引是否合理
+                     if  COPYVelSeq(loc-1) == 0 && COPYVelSeq(loc-2) == 0
+                         %若前面两位都为0
+                         obj.mGaitPhaseSeq(loc) = Utils.Phase_HeelStrike;                                   
+                     end
+                 else
+                     obj.mGaitPhaseSeq(loc) = Utils.Phase_HeelStrike;
+                 end
+             end
+
+            lastPoint = Utils.Phase_Unknown;%默认前一时刻的相位为未知
+             %为除峰值之外的点赋值
+             %根据前一时刻进行赋值
+            for i = 1:obj.mSeqLength                
+                if(obj.mGaitPhaseSeq(i) == Utils.Phase_HeelStrike)
+                    lastPoint = Utils.Phase_HeelStrike;
+                    %认为脚跟着地着地相
+                    obj.mGaitPhaseSeq(i) = Utils.Phase_Landing;
+                elseif(obj.mGaitPhaseSeq(i) == Utils.Phase_ToeOff)
+                    %认为脚尖离地即为离地相
+                    lastPoint = Utils.Phase_ToeOff;
+                     %前一时刻脚尖离地
+                     obj.mGaitPhaseSeq(i) = Utils.Phase_Floating;
+                else
+                    %不是关键节点
+                    if(lastPoint == Utils.Phase_Unknown)
+                        %未知情况默认为着地
+                        obj.mGaitPhaseSeq(i) = Utils.Phase_Landing;
+                    elseif(lastPoint == Utils.Phase_HeelStrike)
+                        %前一时刻为脚跟着地
+                        obj.mGaitPhaseSeq(i) = Utils.Phase_Landing;
+                    elseif(lastPoint == Utils.Phase_ToeOff)
+                         %前一时刻脚尖离地
+                        obj.mGaitPhaseSeq(i) = Utils.Phase_Floating;
+                    end
+                end                
+            end
         end
 
 
@@ -299,7 +444,7 @@ classdef PlantarHandler <handle
 
 
         %绘制足底压力和时序图
-        function plotSumSeq(obj)
+        function plot_SumSeq(obj)
             gcf = figure("Name",'足底压力和时序图');
             sumSeq = obj.getSumSeq();
             plot(obj.mRawData.Timestamp,sumSeq);
@@ -310,9 +455,9 @@ classdef PlantarHandler <handle
         end
 
         %绘制COP速度图
-        function plotCOPSeq(obj)
+        function plot_COPVelSeq(obj)
             gcf = figure("Name","COP速度");
-            copSeq = obj.getCOPSeq();
+            copSeq = obj.getCOPVelSeq();
             plot(obj.mRawData.Timestamp,copSeq(:,1));hold on;
             plot(obj.mRawData.Timestamp,copSeq(:,2));
             xlabel('时间戳/ms'); % x轴注解
@@ -322,10 +467,23 @@ classdef PlantarHandler <handle
             grid on; % 显示格线
         end
 
+         %绘制COP速度图
+        function plot_COPVelXSeq(obj)
+            gcf = figure("Name","COP速度");
+            copSeq = obj.getCOPVelSeq();
+%             plot(obj.mRawData.Timestamp,copSeq(:,1));hold on;
+            plot(obj.mRawData.Timestamp,copSeq(:,2));
+            xlabel('时间戳/ms'); % x轴注解
+            ylabel('速度/cm/s'); % y轴注解
+            title('COP速度图'); % 图形标题
+            legend("Y方向");
+            grid on; % 显示格线
+        end
+
          %COP速度模长
-        function plotCOPNorm(obj)
+        function plot_COPVelNorm(obj)
             gcf = figure("Name","COP速度模长");
-            copSeq = obj.getCOPSeq();
+            copSeq = obj.getCOPVelSeq();
             copNormVec = zeros(size(copSeq,1),1);%初始化向量
             for i = 1:size(copNormVec,1)
                 copNormVec(i) = norm(copSeq(i,:));
@@ -338,9 +496,9 @@ classdef PlantarHandler <handle
         end
         
         %压力中心坐标
-        function plotPressureCenterSeq(obj)
+        function plot_COPSeq(obj)
             gcf = figure("Name","压力中心坐标");
-            pressureCenterSeq = obj.getPressureCenterSeq();
+            pressureCenterSeq = obj.getCOPSeq();
              plot(obj.mRawData.Timestamp,pressureCenterSeq(:,1));hold on;
              plot(obj.mRawData.Timestamp,pressureCenterSeq(:,2));
              xlabel('时间戳/ms'); % x轴注解
