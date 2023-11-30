@@ -6,17 +6,17 @@ classdef Utils <handle
         
 
         %IMU用
-        Phase_Static = -0.3;%静止
+        Phase_Static = 0.3;%静止
         Phase_Active = 0.7;%活动
 
         %plantar用
-        Phase_HeelStrike = -2;%脚跟着地
-        Phase_ToeOff = 2;%脚尖离地
+        Phase_HeelStrike = 0.6;%脚跟着地
+        Phase_ToeOff = 0.4;%脚尖离地
 
-        Phase_Landing = 0.5;%脚着地
-        Phase_Floating = 2.5;%脚离地浮空
+        Phase_Landing = 0.2;%脚着地
+        Phase_Floating = 0.8;%脚离地浮空
 
-        Phase_Unknown = -1;%未知情况
+        Phase_Unknown = 0.5;%未知情况
 
 
 

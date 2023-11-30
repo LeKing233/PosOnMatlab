@@ -2,13 +2,15 @@ classdef StateCalculator <handle
     
     properties
         %状态变量
+        AccENU;%东北天坐标系下的加速度向量
         V;%速度向量
         P;%位移向量
         Cbn;%姿态矩阵
         Phi;%欧拉角
         GaitPhase;%步态相位
-        mStateSeq;%状态向量序列
-        
+        mStateSeq;%状态结果序列
+        mSeqLength;%序列长度
+
         %原始数据序列
         wSeq;%角速度序列
         fSeq;%加速度序列
@@ -24,7 +26,7 @@ classdef StateCalculator <handle
         iHandler;%imu数据管理类
         pHandler;%足底压力传感器数据管理类
         zuptKF;%卡尔曼滤波器（零速度修正特殊版本）
-        aligner;%姿态初始对准器
+       
         utils;%工具函数集合
     end
 
@@ -37,49 +39,99 @@ classdef StateCalculator <handle
             obj.iHandler = imuHandler;
             obj.pHandler = plantarHandler;
             obj.zuptKF  = ZuptKalmanFilter();  %卡尔曼滤波器
-            obj.aligner = Aligner();           %姿态对准器
+            
             obj.utils   = Utils();     %工具函数集
        end
 
        %状态初始化
        function stateInit(obj,phi0)
             obj.Phi = phi0;
+            obj.AccENU = zeros(3,1);
             obj.V = zeros(3,1);
             obj.P = zeros(3,1);
             obj.Cbn = obj.getCbnFromPhi(obj.Phi);
             obj.zuptKF.init();%滤波器初始化 
+            
             obj.GaitPhase = Utils.Phase_Unknown;
             obj.initStateSeq();
-            obj.saveStateToSeq();
+            obj.saveStateToSeq(1);
 
        end
        
         
-       function  initStateSeq(obj)          
-            obj.mStateSeq = struct(  'V',MatList(),'P',MatList(),'Cbn',MatList(),'Phi',MatList(),...
+       function  initStateSeq(obj)  
+%            seqLength = obj.iHandler.mSeqLength;
+%            obj.mStateSeq.V = zeros(seqLength,3);
+%            obj.mStateSeq.P = zeros(seqLength,3);
+%            obj.mStateSeq.Cbn = zeros(seqLength*4,3);%每个Cbn之间要加一行间隔行
+%            obj.mStateSeq.CbnGap = zeros(1,3);%Cbn间隔行
+%            obj.mStateSeq.Phi = zeros(seqLength,3);
+%            obj.mStateSeq.GaitPhase = zeros(seqLength,1);
+%            obj.mStateSeq.KF_X = zeros(seqLength,9);%KF_X为9*1矩阵
+%            obj.mStateSeq.KF_P = zeros(seqLength*10,9);%KF_P为9*9矩阵，中间间隔一行
+%            obj.mStateSeq.KF_PGap = zeros(1,9);
+%            obj.mStateSeq.KF_K = zeros(seqLength*10,3);%KF_K为9*3矩阵，中间间隔一行
+%            obj.mStateSeq.KF_KGap = zeros(1,3);
+            
+            
+            obj.mStateSeq = struct(  'V',MatList(),'P',MatList(),'Phi',MatList(),'AccENU',MatList(),'Cbn',MatList(),...
                                     'GaitPhase',MatList(), ...                                    
                                     'KF_X',MatList(), 'KF_P',MatList(),'KF_K',MatList()...
-                                 );
+                                  );
        end
 
 
        %将结果保存进序列
-       function saveStateToSeq(obj)
+       function saveStateToSeq(obj,index)
+%             obj.mStateSeq.V(index,:) = obj.V;
+%             obj.mStateSeq.P(index,:) = obj.P;
+%             index_Cbn = index+4*(index-1);%Cbn保存开始索引
+%             obj.mStateSeq.Cbn(index_Cbn:(index_Cbn+4-1),:) = [obj.Cbn;obj.mStateSeq.CbnGap];
+%             obj.mStateSeq.Phi(index,:) = obj.Phi;
+%             obj.mStateSeq.GaitPhase(index,:) = obj.GaitPhase;
+%             obj.mStateSeq.KF_X(index,:) = obj.zuptKF.X';
+%             index_KF_P = index+10*(index-1);%KF_P保存索引
+%             obj.mStateSeq.KF_P(index_KF_P:(index_KF_P+10-1),:) = [obj.zuptKF.P;obj.mStateSeq.KF_PGap];
+%             index_KF_K = index + 10*(index-1);
+%             obj.mStateSeq.KF_K(index_KF_K:(index_KF_K+10-1),:) = [obj.zuptKF.K;obj.mStateSeq.KF_KGap];
+
+
+
             %状态量
-            obj.mStateSeq.V.addOne(obj.V);
-            obj.mStateSeq.P.addOne(obj.P);
-            obj.mStateSeq.Phi.addOne(obj.Phi);
-            obj.mStateSeq.Cbn.addOne([zeros(1,3);obj.Cbn]);
+            obj.mStateSeq.AccENU.addOne(obj.AccENU');
+            obj.mStateSeq.V.addOne(obj.V');
+            obj.mStateSeq.P.addOne(obj.P');
+            obj.mStateSeq.Phi.addOne(obj.Phi');
+            obj.mStateSeq.Cbn.addOne([obj.Cbn;zeros(1,3)]);
             %步态检测参数
             obj.mStateSeq.GaitPhase.addOne(obj.GaitPhase);
             %kalman滤波器参数
-            obj.mStateSeq.KF_X.addOne(obj.zuptKF.X);
-            obj.mStateSeq.KF_P.addOne([9999*ones(1,9);obj.zuptKF.P]);
-            obj.mStateSeq.KF_K.addOne([9999*ones(1,3);obj.zuptKF.K]);
+            obj.mStateSeq.KF_X.addOne(obj.zuptKF.X');
+            obj.mStateSeq.KF_P.addOne([obj.zuptKF.P;9999*ones(1,9)]);
+            obj.mStateSeq.KF_K.addOne([obj.zuptKF.K;9999*ones(1,3)]);
        end
        
+
+
+       function stateSeqToMat(obj)          
+
+           %状态量
+           obj.mStateSeq.AccENU = obj.mStateSeq.AccENU.toMat();
+           obj.mStateSeq.V = obj.mStateSeq.V.toMat();
+           obj.mStateSeq.P = obj.mStateSeq.P.toMat();
+           obj.mStateSeq.Phi =  obj.mStateSeq.Phi.toMat();
+           obj.mStateSeq.Cbn = obj.mStateSeq.Cbn.toMat() ;
+           %步态检测参数
+           obj.mStateSeq.GaitPhase =  obj.mStateSeq.GaitPhase.toMat();
+           %kalman滤波器参数
+           obj.mStateSeq.KF_X = obj.mStateSeq.KF_X.toMat();
+           obj.mStateSeq.KF_P = obj.mStateSeq.KF_P.toMat();
+           obj.mStateSeq.KF_K = obj.mStateSeq.KF_K.toMat();
+       end
+
+
        %状态解算
-       function solveState(obj) 
+       function result = solveState(obj,gaitDetectType) 
 
             %结果赋初值
             obj.wSeq = obj.iHandler.mWSeq;
@@ -101,9 +153,9 @@ classdef StateCalculator <handle
                 obj.calculateNextV(V_prev,obj.fSeq(:,i),obj.Cbn,obj.fSeq(:,i-1),Cbn_prev);
                 obj.calculateNextP(P_prev,obj.V,V_prev);
                 obj.Phi = obj.getPhiFromCbn(obj.Cbn); 
-                
+                obj.AccENU = obj.Cbn*obj.fSeq(:,i);
                 %计算步态
-                obj.GaitPhase = obj.getGaitPhase(i);
+                obj.GaitPhase = obj.getGaitPhase(i,gaitDetectType);
                 %依据步态执行零速度更新
                 %零速度修正
                 if obj.GaitPhase == Utils.Phase_Swing 
@@ -128,37 +180,51 @@ classdef StateCalculator <handle
                     
                 end                
                 %将计算结果保存
-                obj.saveStateToSeq();
+                obj.saveStateToSeq(i);
             end
+            
+            %打标签
+
+            obj.mStateSeq.Legend = gaitDetectType;
+
+            %将结果序列作为返回值返回
+            obj.stateSeqToMat();
+            result = obj.mStateSeq;
 
        end
 
 
        %步态检测
-       function phase = getGaitPhase(obj,index)
+       function phase = getGaitPhase(obj,index,gaitDetectType)
             phaseIMU = obj.iHandler.getPhase(index);
             phasePlantar = obj.pHandler.getGaitPhase(index);
-            
-            %方法一：将两者相位取"与"运算
-%             if (phaseIMU==Utils.Phase_Static) && (phasePlantar == Utils.Phase_Landing)
-%                 phase = Utils.Phase_Stance;
-%             else
-%                 phase = Utils.Phase_Swing;
-%             end
+            switch gaitDetectType
+                case "Both"
+                    %方法一：将两者相位取"与"运算
+                    if (phaseIMU==Utils.Phase_Static) && (phasePlantar == Utils.Phase_Landing)
+                        phase = Utils.Phase_Stance;
+                    else
+                        phase = Utils.Phase_Swing;
+                    end
 
-            %方法二：以Plantar为准
-            if (phasePlantar==Utils.Phase_Landing)
-                phase = Utils.Phase_Stance;
-            else
-                phase = Utils.Phase_Swing;
-            end
-            %方法三：以IMU为准
-%             if (phaseIMU==Utils.Phase_Static)
-%                 phase = Utils.Phase_Stance;
-%             else
-%                 phase = Utils.Phase_Swing;
-%             end
+                case "Imu"
+                    %方法二：以IMU为准
+                    if (phaseIMU==Utils.Phase_Static)
+                        phase = Utils.Phase_Stance;
+                    else
+                        phase = Utils.Phase_Swing;
+                    end
 
+                case "Plantar"
+                    %方法三：以Plantar为准
+                    if (phasePlantar==Utils.Phase_Landing)
+                        phase = Utils.Phase_Stance;
+                    else
+                        phase = Utils.Phase_Swing;
+                    end
+                otherwise
+                    error("未知类型");
+            end           
        end
 
 
@@ -241,7 +307,7 @@ classdef StateCalculator <handle
         %三轴速度
         function plot_Velocity(obj)
             gcf = figure("Name","StateCalculator");
-            Vel = obj.mStateSeq.V.toMat();
+            Vel = obj.mStateSeq.V;
             plot(obj.iHandler.mRawData.Timestamp,Vel(1,:));hold on
             plot(obj.iHandler.mRawData.Timestamp,Vel(2,:));hold on
             plot(obj.iHandler.mRawData.Timestamp,Vel(3,:));hold on
@@ -255,7 +321,7 @@ classdef StateCalculator <handle
         %X、Y轴速度
         function plot_HorizontalVelXY(obj)
             gcf = figure("Name","StateCalculator");
-            Vel = obj.mStateSeq.V.toMat();
+            Vel = obj.mStateSeq.V;
             plot(obj.iHandler.mRawData.Timestamp,Vel(1,:));hold on
             plot(obj.iHandler.mRawData.Timestamp,Vel(2,:));
             xlabel('时间戳'); % x轴注解
@@ -270,7 +336,7 @@ classdef StateCalculator <handle
          %水平方向速度模长
          function plot_HorizontalVelNorm(obj)
             gcf = figure("Name","StateCalculator");
-            Vel = obj.mStateSeq.V.toMat();
+            Vel = obj.mStateSeq.V;
             velNormVec = zeros(size(Vel,2),1);
             for i = 1:size(Vel,2)
                 velNormVec(i) = norm([Vel(1,i),Vel(2,i)]);%求取x方向和y方向速度模长
@@ -296,7 +362,7 @@ classdef StateCalculator <handle
 
          %融合IMU步态检测结果和COP速度
          function plot_IMUGait_AND_COPVel(obj)
-            gaitSeq = obj.mStateSeq.GaitPhase.toMat();
+            gaitSeq = obj.mStateSeq.GaitPhase;
             COPSeq = obj.pHandler.mCOPSeq/100;
             COPVelSeq = obj.pHandler.mCOPVelSeq/100;
             gcf = figure("Name","StateCalculator");
@@ -329,11 +395,11 @@ classdef StateCalculator <handle
 
          %绘制融合相位检测、IMU相位检测、Plantar相位检测三者
          function plot_IMUGait_PlantarGait_Both(obj)            
-            gaitSeq = obj.mStateSeq.GaitPhase.toMat();            
+            gaitSeq = obj.mStateSeq.GaitPhase;            
             gcf = figure("Name","StateCalculator");
             plot(obj.iHandler.mRawData.Timestamp,obj.iHandler.mGaitDtr.gaitPhaseSeq,LineWidth=2);hold on;
             plot(obj.iHandler.mRawData.Timestamp,obj.pHandler.mGaitPhaseSeq);hold on;
-            plot(obj.iHandler.mRawData.Timestamp,gaitSeq,LineWidth=2);hold on;
+            plot(obj.iHandler.mRawData.Timestamp,gaitSeq,LineWidth=1);hold on;
 
             xlabel('时间戳/ms'); % x轴注解
             ylabel('步态检测结果'); % y轴注解
@@ -345,9 +411,9 @@ classdef StateCalculator <handle
 
         %二维轨迹图
         function plot_Track_2D(obj)            
-            posSeq = obj.mStateSeq.P.toMat();            
+            posSeq = obj.mStateSeq.P;            
             gcf = figure("Name","StateCalculator");           
-            plot(posSeq(1,:),posSeq(2,:),LineWidth=2);hold on;
+            plot(posSeq(:,1),posSeq(:,2),LineWidth=2);hold on;
 
             xlabel('X方向/米','FontSize', 16); % x轴注解
             ylabel('Y方向/米','FontSize', 16); % y轴注解
@@ -360,9 +426,9 @@ classdef StateCalculator <handle
 
        %二维轨迹图
         function plot_Track_3D(obj)            
-            posSeq = obj.mStateSeq.P.toMat();            
-            gcf = figure("Name","StateCalculator");           
-            plot3(posSeq(1,:),posSeq(2,:),posSeq(3,:),LineWidth=2);hold on;
+            posSeq = obj.mStateSeq.P;            
+                       
+            plot3(posSeq(:,1),posSeq(:,2),posSeq(:,3),LineWidth=2);hold on;
             xlabel('X方向/米','FontSize', 16); % x轴注解
             ylabel('Y方向/米','FontSize', 16); % y轴注解
             zlabel('Z方向'); % z轴注解

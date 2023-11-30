@@ -14,7 +14,7 @@ classdef MatList<handle
         function addOne(obj,data)
             %指数扩容
             if obj.N >= length(obj.dataCell)
-                obj.dataCell = [obj.dataCell,cell(1,(obj.extendScale-1)*length(obj.dataCell))];
+                obj.dataCell = [obj.dataCell;cell((obj.extendScale-1)*length(obj.dataCell),1)];
             end
             %添加数据
             obj.N = obj.N + 1;

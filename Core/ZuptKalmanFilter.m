@@ -8,9 +8,9 @@ classdef ZuptKalmanFilter <handle
         R;    %observation noise variance 
         H;    %observation Matrix
         %参数，用于构建系统噪声矩阵Q和观测噪声矩阵R
-        noise_w = 0.01 * ones(3,1);     %陀螺仪噪声
-        noise_f = 600 * ones(3,1);     %加速度计噪声
-        noise_r = 200  * ones(3,1);     %系统噪声（速度噪声）  
+        noise_w;     %陀螺仪噪声
+        noise_f;     %加速度计噪声
+        noise_r;     %系统噪声（速度噪声）  
         %依赖组件
         utils;%工具函数集合
 
@@ -31,9 +31,13 @@ classdef ZuptKalmanFilter <handle
 
         %初始化
         function init(obj)
-            obj.X = zeros(9,1);
-            obj.K = zeros(9,3);
-            obj.P = eye(9);
+            obj.X = zeros(9,1);              %状态向量
+            obj.K = zeros(9,3);              %卡尔曼增益矩阵   
+            obj.P = eye(9);                 %协方差矩阵
+
+            obj.noise_w = 0.01 * ones(3,1);     %陀螺仪噪声
+            obj.noise_f = 600 * ones(3,1);     %加速度计噪声
+            obj.noise_r = 200  * ones(3,1);     %系统噪声（速度噪声）  
         end
         
         %预测函数

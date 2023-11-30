@@ -18,6 +18,7 @@ classdef ImuHandler <handle
           obj.mFilePath = filePath;
           obj.extractData();
           obj.init();
+          obj.calculateRequiredData();
         end
         
         %提取数据
@@ -29,14 +30,24 @@ classdef ImuHandler <handle
             obj.mFSeq = [obj.mRawData.AccX';
                          obj.mRawData.AccY';
                          obj.mRawData.AccZ'];
+
+%             obj.mWSeq = [obj.mRawData.AccX';
+%                          obj.mRawData.AccY';
+%                          obj.mRawData.AccZ'];
+%             obj.mFSeq = [obj.mRawData.AngularVelX';
+%                          obj.mRawData.AngularVelY';
+%                          obj.mRawData.AngularVelZ'];
         end
         %初始化
         function init(obj)
             obj.mSeqLength = size(obj.mRawData,1);
-            obj.GaitDtrInit();
+            obj.GaitDtrInit();            
         end
 
-
+        %预计算需要的结果
+        function calculateRequiredData(obj)
+            obj.calculateGaitPhaseSeq();
+        end
 
         
         
@@ -83,12 +94,9 @@ classdef ImuHandler <handle
         function WinData = getWinData(obj,dataSeq,index)
             WinData = dataSeq(:,index-(obj.mGaitDtr.windowLength-1):index);
         end
-     end
-    
-    % 公有方法
-    methods(Access = public)     
-        %计算第index帧数据
-        function phase = getPhase(obj,index)            
+
+         %计算第index帧数据
+        function phase = calculatePhase(obj,index)            
             if index < obj.mGaitDtr.windowLength
                 phase = Utils.Phase_Unknown;
                 obj.mGaitDtr.gaitPhaseSeq(index) = phase;
@@ -114,8 +122,15 @@ classdef ImuHandler <handle
         %计算GaitPhase序列
         function calculateGaitPhaseSeq(obj)
             for i = 1:obj.mSeqLength                
-                obj.getPhase(i);
+                obj.calculatePhase(i);
             end
+        end
+     end
+    
+    % 公有方法
+    methods(Access = public)     
+        function phase = getPhase(obj,index)
+            phase = obj.mGaitDtr.gaitPhaseSeq(index);
         end
     end
 
