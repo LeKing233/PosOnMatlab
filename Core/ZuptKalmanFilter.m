@@ -35,9 +35,9 @@ classdef ZuptKalmanFilter <handle
             obj.K = zeros(9,3);              %卡尔曼增益矩阵   
             obj.P = eye(9);                 %协方差矩阵
 
-            obj.noise_w = 0.01 * ones(3,1);     %陀螺仪噪声
+            obj.noise_w = 0.0001 * ones(3,1);     %陀螺仪噪声
             obj.noise_f = 600 * ones(3,1);     %加速度计噪声
-            obj.noise_r = 200  * ones(3,1);     %系统噪声（速度噪声）  
+            obj.noise_r = 150  * ones(3,1);     %系统噪声（速度噪声）  
         end
         
         %预测函数

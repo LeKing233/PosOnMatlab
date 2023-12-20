@@ -31,12 +31,6 @@ classdef ImuHandler <handle
                          obj.mRawData.AccY';
                          obj.mRawData.AccZ'];
 
-%             obj.mWSeq = [obj.mRawData.AccX';
-%                          obj.mRawData.AccY';
-%                          obj.mRawData.AccZ'];
-%             obj.mFSeq = [obj.mRawData.AngularVelX';
-%                          obj.mRawData.AngularVelY';
-%                          obj.mRawData.AngularVelZ'];
         end
         %初始化
         function init(obj)
@@ -68,26 +62,38 @@ classdef ImuHandler <handle
             obj.mGaitDtr.noise_w = 20 * ones(3,1);%陀螺仪测量方差向量
             obj.mGaitDtr.noise_f = 10 * ones(3,1);%加速度计测量方差向量
             obj.mGaitDtr.gravity = 9.8;%加速度数值
-            obj.mGaitDtr.windowLength = 10;%窗口长度
+            obj.mGaitDtr.windowLength = 5;%窗口长度
             %初始化结果序
             obj.mGaitDtr.gaitPhaseSeq = zeros(obj.mSeqLength,1);%步态检测结果序列-初始化分配内存
             obj.mGaitDtr.T_seq = zeros(obj.mSeqLength,1);%统计量序列初始化分配内存
         end
 
-        %计算统计量
-        function T = getT(obj,wWindowSeq,fWindowSeq)
-            T = 0;    
-            f_mean = mean(fWindowSeq);%加速度均值
-            windowLength = length(fWindowSeq);%窗口长度
-            
-            for i = 1:windowLength
-                T = T + 1/windowLength * ...
-                        ( ...
-                            1/norm(obj.mGaitDtr.noise_w)^2 * norm(wWindowSeq(:,i))^2 +...
-                            1/norm(obj.mGaitDtr.noise_f)^2 * norm(fWindowSeq(:,i) - obj.mGaitDtr.gravity*f_mean/norm(f_mean))^2 ...
-                        );
+
+        function T = getT(obj, wWindowSeq, varargin)
+            T = 0;          
+            windowLength = length(wWindowSeq);
+        
+            if isempty(varargin)
+                % 只有 wWindowSeq 参数的情况，计算统计量——单纯基于角速度w的检测条件                
+                for i = 1:windowLength
+                    T = T + 1/windowLength *(1/norm(obj.mGaitDtr.noise_w)^2 * norm(wWindowSeq(:,i))^2);
+                end
+            else
+                % 存在 fWindowSeq 参数的情况 ，基于加速度a和角速度w的混合检测条件
+                fWindowSeq = varargin{1};
+                f_mean = mean(fWindowSeq); % 加速度均值
+                for i = 1:windowLength
+                    T = T + 1/windowLength * ...
+                            ( ...
+                                1/norm(obj.mGaitDtr.noise_w)^2 * norm(wWindowSeq(:,i))^2 +...
+                                1/norm(obj.mGaitDtr.noise_f)^2 * norm(fWindowSeq(:,i) - obj.mGaitDtr.gravity*f_mean/norm(f_mean))^2 ...
+                            );
+                end
             end
-        end 
+        
+        end
+
+       
         
         %获取窗口序列——提取第index帧前的窗口长度数据
         %dataSeq-三维数据向量
