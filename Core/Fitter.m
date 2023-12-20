@@ -26,9 +26,8 @@ classdef Fitter
             for i = 1:length(pHandlerArray)
                 pHandler = pHandlerArray(i);
                 SumSeqInArea = pHandler.mSumSeqInArea;
-                speeds(i) = pHandler.mWalkSpeed;
-                [Maxpeaks,locs] = findpeaks(SumSeqInArea.T_peaks)
-                peaks(i) = mean(Maxpeaks);
+                speeds(i) = pHandler.mWalkSpeed;  
+                peaks(i) = mean(pHandler.mSumSeqInArea.L_Sec_peaks);
             end
             %拟合
             cftool(peaks,speeds)

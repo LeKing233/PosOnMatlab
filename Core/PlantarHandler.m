@@ -466,9 +466,22 @@ classdef PlantarHandler <handle
             [obj.mSumSeqInArea.L_peaks, obj.mSumSeqInArea.L_locations] = findpeaks(L_SumSeq);
             [obj.mSumSeqInArea.H_peaks, obj.mSumSeqInArea.H_locations] = findpeaks(H_SumSeq);
 
-            %找到峰值中的峰值
-            [obj.mSumSeqInArea.T_Sec_peaks, obj.mSumSeqInArea.T_Sec_locations] = findpeaks(obj.mSumSeqInArea.T_peaks);
-
+            %找到峰值中的峰值（小于阈值的峰值）
+            threshold_T = 100;
+            obj.mSumSeqInArea.T_Sec_peaks = obj.mSumSeqInArea.T_peaks(obj.mSumSeqInArea.T_peaks < threshold_T);
+            obj.mSumSeqInArea.T_Sec_locations = obj.mSumSeqInArea.T_locations(obj.mSumSeqInArea.T_peaks < threshold_T);
+            threshold_M = 100;
+            obj.mSumSeqInArea.M_Sec_peaks = obj.mSumSeqInArea.M_peaks(obj.mSumSeqInArea.M_peaks < threshold_M);
+            obj.mSumSeqInArea.M_Sec_locations = obj.mSumSeqInArea.M_locations(obj.mSumSeqInArea.M_peaks < threshold_M);
+            threshold_C = 100;
+            obj.mSumSeqInArea.C_Sec_peaks = obj.mSumSeqInArea.C_peaks(obj.mSumSeqInArea.C_peaks < threshold_C);
+            obj.mSumSeqInArea.C_Sec_locations = obj.mSumSeqInArea.C_locations(obj.mSumSeqInArea.C_peaks < threshold_C);
+            threshold_L = 100;
+            obj.mSumSeqInArea.L_Sec_peaks = obj.mSumSeqInArea.L_peaks(obj.mSumSeqInArea.L_peaks < threshold_L);
+            obj.mSumSeqInArea.L_Sec_locations = obj.mSumSeqInArea.L_locations(obj.mSumSeqInArea.L_peaks < threshold_L);
+            threshold_H = 100;
+            obj.mSumSeqInArea.H_Sec_peaks = obj.mSumSeqInArea.H_peaks(obj.mSumSeqInArea.H_peaks < threshold_H);
+            obj.mSumSeqInArea.H_Sec_locations = obj.mSumSeqInArea.H_locations(obj.mSumSeqInArea.H_peaks < threshold_H);
 
             %保存结果
             %序列数据

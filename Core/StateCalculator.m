@@ -208,8 +208,8 @@ classdef StateCalculator <handle
                     sin_theta = v(2)./meanV_XY;
                     PeXi = StepLength*cos_theta
                     PeYi = StepLength*sin_theta
-                    Pe(counter,1) = Pe(counter-1,1) + StepLength*cos_theta;
-                    Pe(counter,2) = Pe(counter-1,2) + StepLength*sin_theta;
+                    Pe(counter,1) = Pe(counter-1,1) + StepLength;
+                    Pe(counter,2) = Pe(counter-1,2) + StepLength;
                     lastEstiTime = timestamps(i);
 
 

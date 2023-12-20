@@ -277,7 +277,7 @@ classdef Plotter
             plot(timeSeq,stateCalculator.iHandler.mRawData.AccX);hold on;
             plot(timeSeq,stateCalculator.iHandler.mRawData.AccY);hold on;
             plot(timeSeq,stateCalculator.iHandler.mRawData.AccZ);hold on;
-            plot(timeSeq,(stateCalculator.pHandler.mSumSeq-240)*1);hold on;
+            plot(timeSeq,(stateCalculator.pHandler.mSumSeq-200)*1);hold on;
 
             xlabel('时间戳/ms'); % x轴注解
             ylabel('结果'); % y轴注解
