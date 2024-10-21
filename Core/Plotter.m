@@ -721,40 +721,42 @@ classdef Plotter
         % @param stateCalculator实例
         % @retval None
         function plot_AccRaw_Sum(stateCalculator)
-            timeSeq = stateCalculator.iHandler.mTSeq;
-            gcf = figure("Name","StateCalculator");%创建图窗
-            plot(timeSeq,stateCalculator.iHandler.mRawData.AccX);hold on;
-            plot(timeSeq,stateCalculator.iHandler.mRawData.AccY);hold on;
-            plot(timeSeq,stateCalculator.iHandler.mRawData.AccZ);hold on;
-            plot(timeSeq,(stateCalculator.pHandler.mSumSeq-240)*0.5);hold on;
+            gcf = figure("Name","StateCalculator");%创建图窗 
+            timeSeq = stateCalculator.iHandler.mTSeq';
+            acc = stateCalculator.iHandler.mFSeq'; 
+            acc_sum = sqrt(acc(:,1).^2 + acc(:,2).^2 + acc(:,3).^2) - 9.8;
+            plot(timeSeq,acc_sum);hold on;
+            plot(timeSeq,(stateCalculator.pHandler.mSumSeq)*0.1);hold on;
+            plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.GaitPhase*50);hold on
 
             xlabel('时间戳/ms'); % x轴注解
             ylabel('结果'); % y轴注解
             title('加速度——压力和汇总图'); % 图形标题
             grid on; % 显示格线
-            legend('Acc_X','Acc_Y','Acc_Z','Planter');
+            legend('Acc_Sum','Planter', '步态');
             maxValue = max(max(stateCalculator.iHandler.mFSeq));
             minValue = min(min(stateCalculator.iHandler.mFSeq));
             ylim([minValue maxValue])
             Plotter.onlyYAxisZoom(gca);
         end
-
+        
         % @brief 角速度、压力和混合图
         % @param stateCalculator实例
         % @retval None
         function plot_GyroRaw_Sum(stateCalculator)
-            timeSeq = stateCalculator.iHandler.mTSeq;
             gcf = figure("Name","StateCalculator");%创建图窗
-            plot(timeSeq,stateCalculator.iHandler.mRawData.AngularVelX);hold on;
-            plot(timeSeq,stateCalculator.iHandler.mRawData.AngularVelY);hold on;
-            plot(timeSeq,stateCalculator.iHandler.mRawData.AngularVelZ);hold on;
-            plot(timeSeq,(stateCalculator.pHandler.mSumSeq-240)*1);hold on;
+            timeSeq = stateCalculator.iHandler.mTSeq';
+            gyro = stateCalculator.iHandler.mWSeq';
+            gyro_sum = sqrt(gyro(:,1).^2 + gyro(:,2).^2 + gyro(:,3).^2);
+            plot(timeSeq,gyro_sum);hold on;
+            plot(timeSeq,(stateCalculator.pHandler.mSumSeq)*1);hold on;
+            plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.GaitPhase*500,'LineWidth',1);hold on;
 
             xlabel('时间戳/ms'); % x轴注解
             ylabel('结果'); % y轴注解
             title('角速度——压力和汇总图'); % 图形标题
             grid on; % 显示格线
-            legend('Gyro_X','Gyro_Y','Gyro_Z','Planter');
+            legend('Gyro_Sum','Planter', '步态');
             Plotter.onlyYAxisZoom(gca);
         end
 
@@ -768,75 +770,67 @@ classdef Plotter
             types  = Config.Results.types;
 
             timeSeq = stateCalculator.iHandler.mTSeq;
+            timeSeqRaw = stateCalculator.iHandler.mRawData.Timestamp;
             gcf = figure("Name","StateCalculator");%创建图窗
             
-            if contains(types,"Gait")                
-                plot(timeSeq,stateCalculator.iHandler.mGaitDtr.gaitPhaseSeq*50,'LineWidth',2,'DisplayName', 'Gait-IMU');hold on;
+            if contains(types,"Gait")
+                disp('时间戳长度');
+                disp(length(timeSeq(Utils.ALIGNER_STAMP:end)));
+%                 disp(length(timeSeq));
+                disp('向量长度');
+                disp(length(stateCalculator.mStateSeq.GaitPhase));
+                plot(timeSeq, stateCalculator.iHandler.mGaitDtr.gaitPhaseSeq*50,'LineWidth',2,'DisplayName', 'Gait-IMU');hold on;
                 plot(timeSeq,stateCalculator.pHandler.mGaitPhaseSeq*50,'LineWidth',2, 'DisplayName', 'Gait-Plantar');hold on;
                 plot(timeSeq,stateCalculator.pHandler.mGaitPhaseSeqWithTransfer*50,'LineWidth',2,'LineStyle',":","Color","green", 'DisplayName', 'Gait-Plantar-Transfer');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.GaitPhase*50,'LineWidth',1, 'DisplayName', 'Gait-Both');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.GaitPhase*50,'LineWidth',1, 'DisplayName', 'Gait-Both');hold on;
             end
             
-
             if contains(types,"Vel")                
-                plot(timeSeq,stateCalculator.mStateSeq.V(:,1)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'Vel-X');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.V(:,2)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'Vel-Y');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.V(:,3)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'Vel-Z');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.V(:,1)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'Vel-X');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.V(:,2)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'Vel-Y');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.V(:,3)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'Vel-Z');hold on;
                
             end
 
             if contains(types,"Pe")                
-                plot(timeSeq,stateCalculator.mStateSeq.P(:,1)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'P-X');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.P(:,2)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'P-Y');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.P(:,3)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'P-Z');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.P(:,1)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'P-X');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.P(:,2)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'P-Y');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.P(:,3)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'P-Z');hold on;
                 
-                plot(timeSeq,stateCalculator.mStateSeq.Pe(1,:)*20,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'Pe-X');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.Pe(2,:)*20,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'Pe-Y');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.Pe(3,:)*20,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'Pe-Z');hold on;
-               
-            end
-
-            
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Pe(1,:)*20,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'Pe-X');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Pe(2,:)*20,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'Pe-Y');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Pe(3,:)*20,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'Pe-Z');hold on;
+            end     
 
             if contains(types,"AccENU")
-                plot(timeSeq,stateCalculator.mStateSeq.AccENU(:,1),'LineWidth',1,'DisplayName', 'AccENU-X');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.AccENU(:,2),'LineWidth',1,'DisplayName', 'AccENU-Y');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.AccENU(:,3),'LineWidth',1,'DisplayName', 'AccENU-Z');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.AccENU(:,1),'LineWidth',1,'DisplayName', 'AccENU-X');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.AccENU(:,2),'LineWidth',1,'DisplayName', 'AccENU-Y');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.AccENU(:,3),'LineWidth',1,'DisplayName', 'AccENU-Z');hold on;
             end
 
             if contains(types,"AccRaw")
-                plot(timeSeq,stateCalculator.iHandler.mRawData.AccX,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-X');hold on;
-                plot(timeSeq,stateCalculator.iHandler.mRawData.AccY,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-Y');hold on;
-                plot(timeSeq,stateCalculator.iHandler.mRawData.AccZ,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-Z');hold on;                
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AccX,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-X');hold on;
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AccY,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-Y');hold on;
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AccZ,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-Z');hold on;                
             end
 
             if contains(types,"Angularvel")
-                plot(timeSeq,stateCalculator.iHandler.mRawData.AngularVelX/10,'LineStyle',"-.", 'LineWidth',1, 'DisplayName', 'AngularVel-X');hold on;
-                plot(timeSeq,stateCalculator.iHandler.mRawData.AngularVelY/10,'LineStyle',"-.", 'LineWidth',1, 'DisplayName', 'AngularVel-Y');hold on;
-                plot(timeSeq,stateCalculator.iHandler.mRawData.AngularVelZ/10,'LineStyle',"-.", 'LineWidth',1, 'DisplayName', 'AngularVel-Z');hold on;
-            end
-
-
-            if contains(types,"AngleWit")
-                plot(timeSeq,stateCalculator.iHandler.mAngleSeq(1,:),'LineStyle',"-.", 'LineWidth',2, 'DisplayName', 'AngleWit-X');hold on;
-                plot(timeSeq,stateCalculator.iHandler.mAngleSeq(2,:),'LineStyle',"-.", 'LineWidth',2, 'DisplayName', 'AngleWit-Y');hold on;
-                plot(timeSeq,stateCalculator.iHandler.mAngleSeq(3,:),'LineStyle',"-.", 'LineWidth',2, 'DisplayName', 'AngleWit-Z');hold on;
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AngularVelX/10,'LineStyle',"-.", 'LineWidth',1, 'DisplayName', 'AngularVel-X');hold on;
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AngularVelY/10,'LineStyle',"-.", 'LineWidth',1, 'DisplayName', 'AngularVel-Y');hold on;
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AngularVelZ/10,'LineStyle',"-.", 'LineWidth',1, 'DisplayName', 'AngularVel-Z');hold on;
             end
 
             if contains(types,"AngleZupt")                
-                plot(timeSeq,stateCalculator.mStateSeq.Phi(:,1),'LineWidth',2,'LineStyle',"-",'DisplayName', 'Phi-X');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.Phi(:,2),'LineWidth',2,'LineStyle',"-",'DisplayName', 'Phi-Y');hold on;
-                plot(timeSeq,stateCalculator.mStateSeq.Phi(:,3),'LineWidth',2,'LineStyle',"-",'DisplayName', 'Phi-Z');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Phi(:,1),'LineWidth',2,'LineStyle',"-",'DisplayName', 'Phi-X');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Phi(:,2),'LineWidth',2,'LineStyle',"-",'DisplayName', 'Phi-Y');hold on;
+                plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Phi(:,3),'LineWidth',2,'LineStyle',"-",'DisplayName', 'Phi-Z');hold on;
                
             end
             
-
-
-
             if contains(types,"Mag")
-                plot(timeSeq,stateCalculator.iHandler.mRawData.MagX/1000,'LineWidth',2, 'DisplayName', 'Mag-X');hold on;
-                plot(timeSeq,stateCalculator.iHandler.mRawData.MagY/1000,'LineWidth',2, 'DisplayName', 'Mag-Y');hold on;
-                plot(timeSeq,stateCalculator.iHandler.mRawData.MagZ/1000,'LineWidth',2, 'DisplayName', 'Mag-Z');hold on;
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.MagX/1000,'LineWidth',2, 'DisplayName', 'Mag-X');hold on;
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.MagY/1000,'LineWidth',2, 'DisplayName', 'Mag-Y');hold on;
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.MagZ/1000,'LineWidth',2, 'DisplayName', 'Mag-Z');hold on;
             end
 
             %足底压力相关
@@ -856,8 +850,6 @@ classdef Plotter
                 plot(timeSeq,COPSeq(:,1)*10, 'DisplayName', 'COP-X');hold on;
                 plot(timeSeq,COPSeq(:,2)*10, 'DisplayName', 'COP-Y');hold on;
             end
-
-
 
             if contains(types,"pHandler.mWalkSpeed")
                 plot(timeSeq,(stateCalculator.pHandler.mWalkSpeedSeq)*1, 'LineWidth',2,'DisplayName', '步行速度（m/s）','LineStyle',"-");hold on;
@@ -978,11 +970,6 @@ classdef Plotter
             legend("show");
         end
 
-
-
-   
-
-
     %% 绘制PlantarHandler
     %% 热力图
         %绘制单帧热力图
@@ -1091,7 +1078,7 @@ classdef Plotter
         end
         
 
-        %% 足底压力数据提取序列
+       %% 足底压力数据提取序列
         %绘制足底压力和时序图
         function plot_SumSeq(pHandlerArray)
             pHandlerArray = Plotter.toArray(pHandlerArray);
@@ -1100,7 +1087,6 @@ classdef Plotter
             for i = 1:length(pHandlerArray)
                 pHandler = pHandlerArray(i);
                 sumSeq = pHandler.getSumSeq();
-
                 legendArray(i) = num2str(pHandler.mWalkSpeed);
             end
             xlabel('时间戳/ms'); % x轴注解
