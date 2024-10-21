@@ -1,0 +1,35 @@
+{错误使用 <a href="matlab:matlab.internal.language.introspective.errorDocCallback('readtable')" style="font-weight:bold">readtable</a>
+找不到或无法打开 '../RawData/1014晚楼下测试/Imu_长直线1.csv'。请检查路径和文件名或文件权限。
+
+出错 <a href="matlab:matlab.internal.language.introspective.errorDocCallback('ImuHandler/extractData', 'D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\ImuHandler.m', 31)" style="font-weight:bold">ImuHandler/extractData</a> (<a href="matlab: opentoline('D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\ImuHandler.m',31,0)">第 31 行</a>)
+            obj.mRawData = readtable(obj.mFilePath);
+
+出错 <a href="matlab:matlab.internal.language.introspective.errorDocCallback('ImuHandler', 'D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\ImuHandler.m', 23)" style="font-weight:bold">ImuHandler</a> (<a href="matlab: opentoline('D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\ImuHandler.m',23,0)">第 23 行</a>)
+          obj.extractData();
+
+出错 <a href="matlab:matlab.internal.language.introspective.errorDocCallback('multiTest', 'D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\multiTest.m', 15)" style="font-weight:bold">multiTest</a> (<a href="matlab: opentoline('D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\multiTest.m',15,0)">第 15 行</a>)
+StateCalculator(ImuHandler([rootPath 'Imu_长直线1.csv']),PlantarHandler([rootPath 'Plantar_长直线1.csv'])),
+} 
+multiTest
+没有丢帧
+丢帧的位置和对应的时间戳值如下：
+位置: 6049, 时间戳: 117260, 帧间隔: 12 ms
+丢帧的位置和对应的时间戳值如下：
+位置: 201, 时间戳: 154112, 帧间隔: 18 ms
+位置: 5864, 时间戳: 188102, 帧间隔: 18 ms
+位置: 6972, 时间戳: 194762, 帧间隔: 18 ms
+丢帧的位置和对应的时间戳值如下：
+位置: 219, 时间戳: 225500, 帧间隔: 12 ms
+位置: 1086, 时间戳: 230708, 帧间隔: 24 ms
+{错误使用 <a href="matlab:matlab.internal.language.introspective.errorDocCallback('vertcat')" style="font-weight:bold">vertcat</a>
+要串联的数组的维度不一致。
+
+出错 <a href="matlab:matlab.internal.language.introspective.errorDocCallback('ImuHandler/extractData', 'D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\ImuHandler.m', 32)" style="font-weight:bold">ImuHandler/extractData</a> (<a href="matlab: opentoline('D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\ImuHandler.m',32,0)">第 32 行</a>)
+            obj.mWSeq = [obj.mRawData.AngularVelX' -(1.68);
+
+出错 <a href="matlab:matlab.internal.language.introspective.errorDocCallback('ImuHandler', 'D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\ImuHandler.m', 23)" style="font-weight:bold">ImuHandler</a> (<a href="matlab: opentoline('D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\ImuHandler.m',23,0)">第 23 行</a>)
+          obj.extractData();
+
+出错 <a href="matlab:matlab.internal.language.introspective.errorDocCallback('multiTest', 'D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\multiTest.m', 14)" style="font-weight:bold">multiTest</a> (<a href="matlab: opentoline('D:\_Files\S_Project\Matlab\1-Project\0117_finsihEKF\0117_finsihEKF\Core\multiTest.m',14,0)">第 14 行</a>)
+StateCalculator(ImuHandler([rootPath 'Imu_操场1.csv']),PlantarHandler([rootPath 'Plantar_操场1.csv']))
+} 

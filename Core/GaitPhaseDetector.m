@@ -11,21 +11,22 @@ classdef GaitPhaseDetector <handle
         gravity;%加速度数值
         windowLength;%窗口长度
 
-        PhaseStance = 0;%支撑相
-        PhaseSwing = 1;%摆动相
-        PhaseUnknown = -1;%未知情况
+        
 
     end
 
+
+    
+
+
     methods
         %构造函数
-        function obj = GaitPhaseDetector()       
+        function obj = GaitPhaseDetector()     
             obj.threshold = 7.8;%阈值
             obj.noise_w = 20 * ones(3,1);%陀螺仪测量方差向量
             obj.noise_f = 10 * ones(3,1);%加速度计测量方差向量
             obj.gravity = 9.8;%加速度数值
             obj.windowLength = 10;%窗口长度
-
             obj.init();
         end
         %检测器初始化
@@ -54,7 +55,7 @@ classdef GaitPhaseDetector <handle
 
         end
         
-         %计算基于滑动窗口的统计量
+        %计算基于滑动窗口的统计量
         function T = calculateTSeq(obj,wWindowSeq,fWindowSeq)
             T = 0;    
             f_mean = mean(fWindowSeq);%加速度均值
