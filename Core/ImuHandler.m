@@ -1,7 +1,7 @@
 classdef ImuHandler <handle
     %IMUHANDLER Imu事务管理类
     %   封装Imu数据导入导出、计算结果绘图
-    
+
     properties(Access = public)
         mFilePath;%文件地址
         mRawData;%原始数据
@@ -11,43 +11,67 @@ classdef ImuHandler <handle
         mTSeq;%时间戳数据
         phi0;%初始角度
         mSeqLength;%数据条目数
-
+        w_origin_deviation;%角速度零偏
     end
     
+
     methods(Access = public)
-        % @brief ImuHandler构造函数 
+        % @brief ImuHandler构造函数
         % @param filePath .csv数据文件路径
         % @retval obj
-        function obj = ImuHandler(filePath)
-          obj.mFilePath = filePath;
-          obj.extractData();
+        function obj = ImuHandler(filePath,varargin)
+            %解析参数
+            settings = inputParser;
+            addParameter(settings,'w_origin_deviation',[0,0,0]);%陀螺仪零偏
+            parse(settings,varargin{:});
+            obj.w_origin_deviation = settings.Results.w_origin_deviation;
+            
+            obj.mFilePath = filePath;
+            obj.extractData();
+            
+            %校准零偏
+            if nargin >1
+                if ~isequal(obj.w_origin_deviation,[0,0,0])
+                    obj.mWSeq = obj.mWSeq - obj.w_origin_deviation';
+                end
+            else
+%                 obj.sensorCalibration();
+            end
+
+            %执行一些初始化运算
+            obj.init();
+
+
+            
+            
         end
-        
-        % @brief 提取数据 
+
+
+        % @brief 提取数据
         % @param None
         % @retval None
         function extractData(obj)
-            obj.mRawData = readtable(obj.mFilePath);            
+            obj.mRawData = readtable(obj.mFilePath);
             obj.mWSeq = [obj.mRawData.AngularVelX';
-                        obj.mRawData.AngularVelY';
-                        obj.mRawData.AngularVelZ'];
+                obj.mRawData.AngularVelY';
+                obj.mRawData.AngularVelZ'];
             obj.mFSeq = [obj.mRawData.AccX';
-                        obj.mRawData.AccY';
-                        obj.mRawData.AccZ'];     
+                obj.mRawData.AccY';
+                obj.mRawData.AccZ'];
             obj.mMSeq = [obj.mRawData.MagX';
-                        obj.mRawData.MagY';
-                        obj.mRawData.MagZ'];
-%             obj.phi0 = [obj.mRawData.AngleX(1);
-%                     obj.mRawData.AngleY(1);
-%                     obj.mRawData.AngleZ(1)];
-            obj.mTSeq = obj.mRawData.Timestamp';  
-            obj.checkFrameDrop();        
+                obj.mRawData.MagY';
+                obj.mRawData.MagZ'];
+            %             obj.phi0 = [obj.mRawData.AngleX(1);
+            %                     obj.mRawData.AngleY(1);
+            %                     obj.mRawData.AngleZ(1)];
+            obj.mTSeq = obj.mRawData.Timestamp';
+            obj.checkFrameDrop();
             obj.interpolateMissingFrames();
-            obj.sensorCalibration();
-            obj.init();
+            
+            
         end
 
-        % @brief 传感器零偏校准 
+        % @brief 传感器零偏校准
         % @param None
         % @retval None
         function sensorCalibration(obj)
@@ -57,26 +81,26 @@ classdef ImuHandler <handle
             sensorDeviationValue = mean(wSeqInWin');%偏差值
             obj.mWSeq = obj.mWSeq - sensorDeviationValue';
         end
-        
-        % @brief 初始化 
+
+        % @brief 初始化计算
         % @param None
         % @retval None
         function init(obj)
             obj.mSeqLength = size(obj.mWSeq,2);
             obj.GaitDtrInit();
         end
-        
+
     end
     %% 步态检测
     properties(Access = public)
         mGaitDtr;%步态相位检测器
-    end    
-      methods(Access = public)     
+    end
+    methods(Access = public)
 
-        % @brief 计算第index帧步态数据 
+        % @brief 计算第index帧步态数据
         % @param index 迭代器当前索引
         % @retval None
-        function phase = getPhase(obj,index)            
+        function phase = getPhase(obj,index)
             if index < obj.mGaitDtr.windowLength
                 phase = Utils.Phase_Unknown;
                 obj.mGaitDtr.gaitPhaseSeq(index) = phase;
@@ -84,9 +108,9 @@ classdef ImuHandler <handle
             end
             wWinData = obj.getWinData(obj.mWSeq,index);
             fWinData = obj.getWinData(obj.mFSeq,index);
-            
+
             T = obj.getT(wWinData,fWinData);
-            
+
             % 根据统计量获取步相
             if T <  obj.mGaitDtr.threshold
                 phase = Utils.Phase_Stance;%支撑相
@@ -102,7 +126,7 @@ classdef ImuHandler <handle
 
 
     methods(Access = private)
-        
+
         % @brief 步态检测器初始化
         % @param None
         % @retval None
@@ -121,26 +145,26 @@ classdef ImuHandler <handle
         % @param wWindowSeq 角速度数据窗口序列   fWindowSeq 加速度数据窗口序列
         % @retval None
         function T = getT(obj,wWindowSeq,fWindowSeq)
-            T = 0;    
+            T = 0;
             f_mean = mean(fWindowSeq);%加速度均值
             windowLength = length(fWindowSeq);%窗口长度
-            
+
             for i = 1:windowLength
                 T = T + 1/windowLength * ...
-                        ( ...
-                            1/norm(obj.mGaitDtr.noise_w)^2 * norm(wWindowSeq(:,i))^2 +...
-                            1/norm(obj.mGaitDtr.noise_f)^2 * norm(fWindowSeq(:,i) - obj.mGaitDtr.gravity*f_mean/norm(f_mean))^2 ...
-                        );
+                    ( ...
+                    1/norm(obj.mGaitDtr.noise_w)^2 * norm(wWindowSeq(:,i))^2 +...
+                    1/norm(obj.mGaitDtr.noise_f)^2 * norm(fWindowSeq(:,i) - obj.mGaitDtr.gravity*f_mean/norm(f_mean))^2 ...
+                    );
             end
-        end 
-        
+        end
+
         % @brief 获取窗口序列——提取第index帧前的窗口长度数据
         % @param dataSeq 三维数据向量     index 迭代器当前索引
         % @retval None
         function WinData = getWinData(obj,dataSeq,index)
             WinData = dataSeq(:,index-(obj.mGaitDtr.windowLength-1):index);
         end
-        
+
         % @brief 检测数据序列丢帧
         % @param None
         % @retval None
@@ -161,8 +185,8 @@ classdef ImuHandler <handle
                 end
             end
         end
-        
-        
+
+
         % @brief 补齐丢失数据帧
         % @param None
         % @retval None
@@ -198,6 +222,6 @@ classdef ImuHandler <handle
 
 
 
-    end     
+    end
 
 end

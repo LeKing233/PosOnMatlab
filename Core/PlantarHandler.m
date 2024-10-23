@@ -195,7 +195,8 @@ classdef PlantarHandler <handle
             obj.mSeqLength = size(obj.mRawData.valueMat,1);%行数作为序列长度
             obj.mFrameSize = size(obj.mSensorCoordMat,1);%单帧压力点数
             %序列间隔时间，取平均值得到
-            obj.mFrameInterval = double((obj.mRawData.Timestamp(end)-obj.mRawData.Timestamp(1))/obj.mSeqLength);
+%             obj.mFrameInterval = double((obj.mRawData.Timestamp(end)-obj.mRawData.Timestamp(1))/obj.mSeqLength);
+            obj.mFrameInterval = 12;
             obj.mFrameIntervalIMU = 6;
             obj.preProcessData();%对数据进行预处理
         end
@@ -206,9 +207,9 @@ classdef PlantarHandler <handle
             obj.mSumSeq = obj.getSumSeq();
             obj.mCOPSeq = obj.getCOPSeq();
             obj.mCOPVelSeq = obj.getCOPVelSeq();
-            obj.getGaitPhaseSeqByCOP("mode","end");
-            obj.getSumInAreaSeq();
-            obj.estimateWalkSpeedSeq();
+%             obj.getGaitPhaseSeqByCOP("mode","end");
+%             obj.getSumInAreaSeq();
+%             obj.estimateWalkSpeedSeq();
         end
 
 

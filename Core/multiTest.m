@@ -12,16 +12,16 @@ clc;
 rootPath = '../RawData/1015操场测试/合并/';
 
 %单个实例
-% stateCalArray = StateCalculator(ImuHandler([rootPath 'Imu_方形h5.csv']),PlantarHandler([rootPath 'Plantar_方形h5.csv']));
-% stateCalArray.solveState("1");
+% stateCalrArray = StateCalculator(ImuHandler([rootPath 'Imu_方形h5.csv']),PlantarHandler([rootPath 'Plantar_方形h5.csv']));
+% stateCalrArray.solveState("1");
 % 
-% Plotter.plot_Tracks_2D(stateCalArray);
-% Plotter.plot_Tracks_3D(stateCalArray);
+% Plotter.plot_Tracks_2D(stateCalrArray);
+% Plotter.plot_Tracks_3D(stateCalrArray);
 
 
 
 %多个实例
-stateCalArray = [
+stateCalrArray = [
 % StateCalculator(ImuHandler([rootPath 'Imu_直线h31.csv']),PlantarHandler([rootPath 'Plantar_直线h31.csv'])),    
 % StateCalculator(ImuHandler([rootPath 'Imu_直线h32.csv']),PlantarHandler([rootPath 'Plantar_直线h32.csv'])), 
 % StateCalculator(ImuHandler([rootPath 'Imu_直线h34.csv']),PlantarHandler([rootPath 'Plantar_直线h34.csv'])), 
@@ -49,17 +49,17 @@ stateCalArray = [
 
 %方形————所有数据集
 StateCalculator(ImuHandler([rootPath 'Imu_方形a1.csv']),PlantarHandler([rootPath 'Plantar_方形a1.csv'])),    
-% StateCalculator(ImuHandler([rootPath 'Imu_方形a2.csv']),PlantarHandler([rootPath 'Plantar_方形a2.csv'])), 
-% StateCalculator(ImuHandler([rootPath 'Imu_方形a3.csv']),PlantarHandler([rootPath 'Plantar_方形a3.csv'])), 
-% StateCalculator(ImuHandler([rootPath 'Imu_方形a4.csv']),PlantarHandler([rootPath 'Plantar_方形a4.csv'])), 
-% StateCalculator(ImuHandler([rootPath 'Imu_方形a5.csv']),PlantarHandler([rootPath 'Plantar_方形a5.csv'])), 
-% StateCalculator(ImuHandler([rootPath 'Imu_方形a6.csv']),PlantarHandler([rootPath 'Plantar_方形a6.csv'])), 
-% StateCalculator(ImuHandler([rootPath 'Imu_方形h1.csv']),PlantarHandler([rootPath 'Plantar_方形h1.csv'])),    
-% StateCalculator(ImuHandler([rootPath 'Imu_方形h2.csv']),PlantarHandler([rootPath 'Plantar_方形h2.csv'])), 
-% StateCalculator(ImuHandler([rootPath 'Imu_方形h3.csv']),PlantarHandler([rootPath 'Plantar_方形h3.csv'])), 
-% StateCalculator(ImuHandler([rootPath 'Imu_方形h4.csv']),PlantarHandler([rootPath 'Plantar_方形h4.csv'])), 
-% StateCalculator(ImuHandler([rootPath 'Imu_方形h5.csv']),PlantarHandler([rootPath 'Plantar_方形h5.csv'])), 
-% StateCalculator(ImuHandler([rootPath 'Imu_方形h6.csv']),PlantarHandler([rootPath 'Plantar_方形h6.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形a2.csv']),PlantarHandler([rootPath 'Plantar_方形a2.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形a3.csv']),PlantarHandler([rootPath 'Plantar_方形a3.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形a4.csv']),PlantarHandler([rootPath 'Plantar_方形a4.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形a5.csv']),PlantarHandler([rootPath 'Plantar_方形a5.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形a6.csv']),PlantarHandler([rootPath 'Plantar_方形a6.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形h1.csv']),PlantarHandler([rootPath 'Plantar_方形h1.csv'])),    
+StateCalculator(ImuHandler([rootPath 'Imu_方形h2.csv']),PlantarHandler([rootPath 'Plantar_方形h2.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形h3.csv']),PlantarHandler([rootPath 'Plantar_方形h3.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形h4.csv']),PlantarHandler([rootPath 'Plantar_方形h4.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形h5.csv']),PlantarHandler([rootPath 'Plantar_方形h5.csv'])), 
+StateCalculator(ImuHandler([rootPath 'Imu_方形h6.csv']),PlantarHandler([rootPath 'Plantar_方形h6.csv'])), 
 
 %方形————修改参数
 % StateCalculator(ImuHandler([rootPath 'Imu_方形a1.csv']),PlantarHandler([rootPath 'Plantar_方形a1.csv']),'ZUP_noiseW', 0.02,'ZUP_noiseF', 100,'ZUP_noiseG', 300), 
@@ -83,27 +83,26 @@ StateCalculator(ImuHandler([rootPath 'Imu_方形a1.csv']),PlantarHandler([rootPa
 ];
 
 
-for i = 1:length(stateCalArray)
+for i = 1:length(stateCalrArray)
    str = "data " + num2str(i); % 连接字符串
-   stateCalArray(i).solveState(str);
+   stateCalrArray(i).solveState(str);
 end
 
 
 
 
 
-Plotter.plot_Tracks_2D(stateCalArray);
+Plotter.plot_Tracks_2D(stateCalrArray);
 
 
 
 
-% Plotter.plot_Tracks_2D(stateCalArray(2));
+% Plotter.plot_Tracks_2D(stateCalrArray(2));
 
-Plotter.plot_SumSeq(stateCalArray);
 
 
 %% 测试图片旋转模块
-P = stateCalArray(3).mStateSeq.P';
+P = stateCalrArray(3).mStateSeq.P';
 
 P_adjust = TrackAdjuster.rotate2D(P(1,:),P(2,:),40);
 

@@ -78,7 +78,7 @@ classdef StateCalculator <handle
             Algorithm_setting = inputParser;
             addParameter(Algorithm_setting, 'Attitude', Utils.WHOLE_ATTITUDE);      %默认启用三轴姿态修正
             addParameter(Algorithm_setting, 'Position', Utils.VERTICAL_POSITION);   %默认启用高度修正
-            addParameter(Algorithm_setting, 'Aligner', Utils.AHRS_EKF);             %默认启用EKF算法
+            addParameter(Algorithm_setting, 'Aligner', Utils.AHRS_MADGWICK);             %默认启用EKF算法
             addParameter(Algorithm_setting, 'AHRS', Utils.AHRS_EKF);                %默认启用EKF算法
             %读取ZUP卡尔曼滤波参数设置
             addParameter(Algorithm_setting, 'ZUP_noiseW', 0.02);        %预测噪声（陀螺仪噪声）

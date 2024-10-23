@@ -721,9 +721,9 @@ classdef Plotter
         % @param stateCalculator实例
         % @retval None
         function plot_AccRaw_Sum(stateCalculator)
-            gcf = figure("Name","StateCalculator");%创建图窗 
+            gcf = figure("Name","StateCalculator");%创建图窗
             timeSeq = stateCalculator.iHandler.mTSeq';
-            acc = stateCalculator.iHandler.mFSeq'; 
+            acc = stateCalculator.iHandler.mFSeq';
             acc_sum = sqrt(acc(:,1).^2 + acc(:,2).^2 + acc(:,3).^2) - 9.8;
             plot(timeSeq,acc_sum);hold on;
             plot(timeSeq,(stateCalculator.pHandler.mSumSeq)*0.1);hold on;
@@ -739,7 +739,7 @@ classdef Plotter
             ylim([minValue maxValue])
             Plotter.onlyYAxisZoom(gca);
         end
-        
+
         % @brief 角速度、压力和混合图
         % @param stateCalculator实例
         % @retval None
@@ -760,10 +760,10 @@ classdef Plotter
             Plotter.onlyYAxisZoom(gca);
         end
 
-       % @brief 绘制综合结果展示图
+        % @brief 绘制综合结果展示图
         % @param stateCalculator实例
         function displayResults(stateCalculator,varargin)
-             %解析设置参数
+            %解析设置参数
             Config = inputParser;
             addParameter(Config, 'types',""); %选择绘制轴，默认都不绘制
             parse(Config, varargin{:});
@@ -772,11 +772,11 @@ classdef Plotter
             timeSeq = stateCalculator.iHandler.mTSeq;
             timeSeqRaw = stateCalculator.iHandler.mRawData.Timestamp;
             gcf = figure("Name","StateCalculator");%创建图窗
-            
+
             if contains(types,"Gait")
                 disp('时间戳长度');
                 disp(length(timeSeq(Utils.ALIGNER_STAMP:end)));
-%                 disp(length(timeSeq));
+                %                 disp(length(timeSeq));
                 disp('向量长度');
                 disp(length(stateCalculator.mStateSeq.GaitPhase));
                 plot(timeSeq, stateCalculator.iHandler.mGaitDtr.gaitPhaseSeq*50,'LineWidth',2,'DisplayName', 'Gait-IMU');hold on;
@@ -784,23 +784,23 @@ classdef Plotter
                 plot(timeSeq,stateCalculator.pHandler.mGaitPhaseSeqWithTransfer*50,'LineWidth',2,'LineStyle',":","Color","green", 'DisplayName', 'Gait-Plantar-Transfer');hold on;
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.GaitPhase*50,'LineWidth',1, 'DisplayName', 'Gait-Both');hold on;
             end
-            
-            if contains(types,"Vel")                
+
+            if contains(types,"Vel")
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.V(:,1)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'Vel-X');hold on;
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.V(:,2)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'Vel-Y');hold on;
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.V(:,3)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'Vel-Z');hold on;
-               
+
             end
 
-            if contains(types,"Pe")                
+            if contains(types,"Pe")
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.P(:,1)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'P-X');hold on;
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.P(:,2)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'P-Y');hold on;
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.P(:,3)*20,'LineWidth',2,'LineStyle',"-",'DisplayName', 'P-Z');hold on;
-                
+
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Pe(1,:)*20,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'Pe-X');hold on;
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Pe(2,:)*20,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'Pe-Y');hold on;
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Pe(3,:)*20,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'Pe-Z');hold on;
-            end     
+            end
 
             if contains(types,"AccENU")
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.AccENU(:,1),'LineWidth',1,'DisplayName', 'AccENU-X');hold on;
@@ -811,7 +811,7 @@ classdef Plotter
             if contains(types,"AccRaw")
                 plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AccX,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-X');hold on;
                 plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AccY,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-Y');hold on;
-                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AccZ,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-Z');hold on;                
+                plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AccZ,'LineWidth',2,'LineStyle',"-.",'DisplayName', 'AccRaw-Z');hold on;
             end
 
             if contains(types,"Angularvel")
@@ -820,13 +820,13 @@ classdef Plotter
                 plot(timeSeqRaw,stateCalculator.iHandler.mRawData.AngularVelZ/10,'LineStyle',"-.", 'LineWidth',1, 'DisplayName', 'AngularVel-Z');hold on;
             end
 
-            if contains(types,"AngleZupt")                
+            if contains(types,"AngleZupt")
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Phi(:,1),'LineWidth',2,'LineStyle',"-",'DisplayName', 'Phi-X');hold on;
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Phi(:,2),'LineWidth',2,'LineStyle',"-",'DisplayName', 'Phi-Y');hold on;
                 plot(timeSeq(Utils.ALIGNER_STAMP:end),stateCalculator.mStateSeq.Phi(:,3),'LineWidth',2,'LineStyle',"-",'DisplayName', 'Phi-Z');hold on;
-               
+
             end
-            
+
             if contains(types,"Mag")
                 plot(timeSeqRaw,stateCalculator.iHandler.mRawData.MagX/1000,'LineWidth',2, 'DisplayName', 'Mag-X');hold on;
                 plot(timeSeqRaw,stateCalculator.iHandler.mRawData.MagY/1000,'LineWidth',2, 'DisplayName', 'Mag-Y');hold on;
@@ -834,7 +834,7 @@ classdef Plotter
             end
 
             %足底压力相关
-            
+
             if contains(types,"AreaMaxPressure")
                 plot(stateCalculator.pHandler.mSumSeqInArea.H_Max,'LineWidth',2, 'DisplayName', 'H-Max');hold on;
                 plot(stateCalculator.pHandler.mSumSeqInArea.M_Max,'LineWidth',2, 'DisplayName', 'M-Max');hold on;
@@ -859,11 +859,11 @@ classdef Plotter
                 plot(timeSeq,(stateCalculator.pHandler.mSumSeq-200)*1, 'LineWidth',2,'DisplayName', '足底压力总和','LineStyle',":");hold on;
             end
 
-            legend('show');  % 自定义坐标     
+            legend('show');  % 自定义坐标
             xlabel('时间戳/ms'); % x轴注解
             ylabel('结果'); % y轴注解
             title('综合结果显示图'); % 图形标题
-            grid on; % 显示格线          
+            grid on; % 显示格线
             Plotter.onlyYAxisZoom(gca);
         end
 
@@ -902,7 +902,7 @@ classdef Plotter
 
 
 
-        
+
 
         % @brief 加速度、压力和、混合图
         % @param stateCalculator实例
@@ -944,7 +944,7 @@ classdef Plotter
             legend('V_X','V_Y','COPVel_X','COPVel_Y');
             Plotter.onlyYAxisZoom(gca);
         end
-        
+
 
         % @brief 二维轨迹图
         % @param stateCalrArray实例数组
@@ -956,11 +956,11 @@ classdef Plotter
             for i = 1:length(stateCalrArray)
                 stateCalr = stateCalrArray(i);
                 P = stateCalr.mStateSeq.P;
-                Pe = stateCalr.mStateSeq.Pe;              
+                Pe = stateCalr.mStateSeq.Pe;
                 plot(P(:,1),P(:,2),'LineWidth',2,"DisplayName",stateCalr.mStateSeq.Legend);hold on;
                 plot(Pe(1,:),Pe(2,:),'LineWidth',2,"DisplayName","足底压力推算结果");hold on;
             end
-            
+
             xlabel('X方向/米','FontSize', 16); % x轴注解
             ylabel('Y方向/米','FontSize', 16); % y轴注解
             title('二维轨迹图'); % 图形标题
@@ -970,8 +970,8 @@ classdef Plotter
             legend("show");
         end
 
-    %% 绘制PlantarHandler
-    %% 热力图
+        %% 绘制PlantarHandler
+        %% 热力图
         %绘制单帧热力图
         function gcf = drawHeatMapOfIndex(pHandler,index)
             gcf = Plotter.drawHeatMapOfSection(pHandler,index,index,1);
@@ -981,10 +981,10 @@ classdef Plotter
         function gcf = drawHeatMapOfAll(pHandler,interval)
             gcf = Plotter.drawHeatMapOfSection(pHandler,1,size(pHandler.mRawData.valueMat,1),interval);
         end
-        
+
 
         % @brief 持续绘制热力图并保存成MP4
-        % @param interval 间隔帧      
+        % @param interval 间隔帧
         function drawHeatMapOfAllSaveToMp4(pHandler,interval)
             % 获取当前的系统时间
             currentTime = datetime('now');
@@ -1032,7 +1032,7 @@ classdef Plotter
 
             %             xlim([min(X(:)) max(X(:))]);%设置x坐标范围
             %             ylim([min(Y(:)) max(Y(:))]);
-            
+
             %逐帧更新数据
             for i = startIndex:endIndex
                 reminder = mod(i,interval);
@@ -1076,9 +1076,9 @@ classdef Plotter
             end
             gcf = pHandler.mHeatMapGcf;%结果赋值
         end
-        
 
-       %% 足底压力数据提取序列
+
+        %% 足底压力数据提取序列
         %绘制足底压力和时序图
         function plot_SumSeq(pHandlerArray)
             pHandlerArray = Plotter.toArray(pHandlerArray);
@@ -1111,7 +1111,7 @@ classdef Plotter
             Plotter.onlyYAxisZoom(gca);
         end
 
-       
+
 
         %COP速度模长
         function plot_COPVelNorm(pHandler)
@@ -1316,41 +1316,109 @@ classdef Plotter
 
 
 
-    %% 绘制ImuHandler
+        %% 绘制ImuHandler
 
 
 
 
-    %% 绘制最终结果图
+        %% 绘制最终结果图
 
-    
-    % @brief 绘制方形
-    % @param stateCalrArray实例数组
-    % @retval None
-    function plot_Tracks_Square(stateCalrArray)
-        stateCalrArray = Plotter.toArray(stateCalrArray);
-        gcf = figure("Name","StateCalculator");%创建图窗
-        legendArray = [];
-        for i = 1:length(stateCalrArray)
-            stateCalr = stateCalrArray(i);
-            P = stateCalr.mStateSeq.P;
-            legendArray = [legendArray,stateCalr.mStateSeq.Legend];
-            plot3(P(:,1),P(:,2),P(:,3),'LineWidth',2);hold on;
+        % @brief 绘制方形
+        % @param stateCalrArray实例数组
+        % @retval None
+        function gcf = plot_Tracks_Square(stateCalrArray,varargin)
+            %解析参数
+            settings = inputParser;
+            addParameter(settings,'P1_angle',50);%P1的旋转角度
+            addParameter(settings,'P2_angle',50);%P2的旋转角度
+            parse(settings,varargin{:});
+            P1_angle = settings.Results.P1_angle;
+            P2_angle = settings.Results.P2_angle;
+
+
+            stateCalrArray = Plotter.toArray(stateCalrArray);
+            gcf = figure("Name","Square");%创建图窗
+            %绘制Proposed
+            P1 = stateCalrArray(1).mStateSeq.P';
+            P1_adjust = TrackAdjuster.rotate2D(P1(1,:),P1(2,:),P1_angle);
+            plot(P1_adjust(1,:),P1_adjust(2,:),'r-','LineWidth',2,'DisplayName','Proposed ZUPT');hold on;
+
+            %绘制Traditional
+            P2 = stateCalrArray(2).mStateSeq.P';
+            P2_adjust = TrackAdjuster.rotate2D(P2(1,:),P2(2,:),P2_angle);
+            plot(P2_adjust(1,:),P2_adjust(2,:),'b-','LineWidth',2,'DisplayName','Traditional ZUPT');hold on;
+
+            %绘制参考轨迹
+            plot([0,0,-16,-16,0],[0,19.5,19.5,0,0],'g--','LineWidth',2,'DisplayName','Reference Path');
+
+            %绘制结束点
+            plot(P1_adjust(1,end),P1_adjust(2,end),'ro','LineWidth',2,'DisplayName','Proposed ZUPT EndPoint');hold on;
+            plot(P2_adjust(1,end),P2_adjust(2,end),'bo','LineWidth',2,'DisplayName','Traditional ZUPT EndPoint');hold on;
+
+            xlabel('X方向/米','FontSize', 16); % x轴注解
+            ylabel('Y方向/米','FontSize', 16); % y轴注解0000h
+            title('室内方形场地测试图'); % 图形标题
+            grid on; % 显示格线
+            axis equal;
+            legend('show');
+            set(gca, 'FontSize', 12); % 设置刻度值字体大小为12
 
         end
-        xlabel('X方向/米','FontSize', 16); % x轴注解
-        ylabel('Y方向/米','FontSize', 16); % y轴注解
-        zlabel('Z方向/米','FontSize', 16); % z轴注解
-        title('三维轨迹图'); % 图形标题
-        grid on; % 显示格线
-        axis equal;
-        legend(legendArray);
-        set(gca, 'FontSize', 12); % 设置刻度值字体大小为12
-        %             % 调整视角为侧视图
-        %             view(0, 0);
-    end
 
-    
+        % @brief 绘制机械楼
+        % @param stateCalrArray实例数组
+        % @retval None
+        function gcf = plot_Tracks_JiXieLou(stateCalrArray,varargin)
+            %解析参数
+            settings = inputParser;
+            addParameter(settings,'P1_angle',50);%P1的旋转角度
+            addParameter(settings,'P2_angle',50);%P2的旋转角度
+            parse(settings,varargin{:});
+            P1_angle = settings.Results.P1_angle;
+            P2_angle = settings.Results.P2_angle;
+
+
+            stateCalrArray = Plotter.toArray(stateCalrArray);
+            gcf = figure("Name","JiXieLou");%创建图窗
+            %绘制Proposed
+            P1 = stateCalrArray(1).mStateSeq.P';
+            P1_adjust = TrackAdjuster.rotate2D(P1(1,:),P1(2,:),P1_angle);
+            plot(P1_adjust(1,:),P1_adjust(2,:),'r-','LineWidth',2,'DisplayName','Proposed ZUPT');hold on;
+
+            %绘制Traditional
+            P2 = stateCalrArray(2).mStateSeq.P';
+            P2_adjust = TrackAdjuster.rotate2D(P2(1,:),P2(2,:),P2_angle);
+            plot(P2_adjust(1,:),P2_adjust(2,:),'b-','LineWidth',2,'DisplayName','Traditional ZUPT');hold on;
+
+            % 定义参考轨迹，将 x 和 y 组合成两行一列的向量
+            trajectory_ref = [
+                0, -16.5, -17, -68.99, -69.15, -84.55, -86.64, -2.6, 0;  % x 坐标
+                0, 2, 10.33, 8.49, 0.22, -1.54, -81.84, -80.66, 0       % y 坐标
+                ];
+
+            % 提取 x 和 y 坐标
+            x_ref = trajectory_ref(1, :);
+            y_ref = trajectory_ref(2, :);
+
+            % 绘制轨迹
+            plot(x_ref, y_ref, 'g--', 'LineWidth', 2, 'DisplayName', 'Reference Path');
+
+            %绘制结束点
+            plot(P1_adjust(1,end),P1_adjust(2,end),'ro','LineWidth',2,'DisplayName','Proposed ZUPT EndPoint');hold on;
+            plot(P2_adjust(1,end),P2_adjust(2,end),'bo','LineWidth',2,'DisplayName','Traditional ZUPT EndPoint');hold on;
+
+            xlabel('X方向/米','FontSize', 16); % x轴注解
+            ylabel('Y方向/米','FontSize', 16); % y轴注解0000h
+            title('室内方形场地测试图'); % 图形标题
+            grid on; % 显示格线
+            axis equal;
+            legend('show');
+            set(gca, 'FontSize', 12); % 设置刻度值字体大小为12
+
+        end
+
+
+
     end
 end
 
