@@ -185,24 +185,23 @@ beep;
 
 % 设置保存路径
 savePath = './output/'; % 你可以根据需求更改保存的路径
-% 
-% % 如果输出目录不存在，创建它
-% if ~exist(savePath, 'dir')
-%     mkdir(savePath);
-% end
 
-% 保存慢走图形
-exportgraphics(gcf_slow_walk, fullfile(savePath, 'slow_walk.png'), 'Resolution', 300);
+% 如果输出目录不存在，创建它
+if ~exist(savePath, 'dir')
+    mkdir(savePath);
+end
 
-% 保存快走图形
-exportgraphics(gcf_fast_walk, fullfile(savePath, 'fast_walk.png'), 'Resolution', 300);
+% 保存慢走图形，透明背景
+exportgraphics(gcf_slow_walk, fullfile(savePath, 'slow_walk.png'), 'Resolution', 300, 'BackgroundColor', 'none');
 
-% 保存慢跑图形
-exportgraphics(gcf_slow_run, fullfile(savePath, 'slow_run.png'), 'Resolution', 300);
+% 保存快走图形，透明背景
+exportgraphics(gcf_fast_walk, fullfile(savePath, 'fast_walk.png'), 'Resolution', 300, 'BackgroundColor', 'none');
 
-% 保存快跑图形
-exportgraphics(gcf_fast_run, fullfile(savePath, 'fast_run.png'), 'Resolution', 300);
+% 保存慢跑图形，透明背景
+exportgraphics(gcf_slow_run, fullfile(savePath, 'slow_run.png'), 'Resolution', 300, 'BackgroundColor', 'none');
 
+% 保存快跑图形，透明背景
+exportgraphics(gcf_fast_run, fullfile(savePath, 'fast_run.png'), 'Resolution', 300, 'BackgroundColor', 'none');
 
 
 

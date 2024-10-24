@@ -1030,7 +1030,7 @@ Plotter.plot_Tracks_2D(stateCalrArray_fast_run);
 
 
 gcf_fast_run = Plotter.plot_Tracks_Line(stateCalrArray_fast_run,'exprName','traditional——快跑');
-exportgraphics(gcf_fast_run, fullfile(savePath, 'Line_fast_run.png'), 'Resolution', 300);
+
 
 
 beep;
@@ -1050,16 +1050,16 @@ if ~exist(savePath, 'dir')
 end
 
 % 保存慢走图形
-exportgraphics(gcf_slow_walk, fullfile(savePath, 'Line_slow_walk.png'), 'Resolution', 300);
+exportgraphics(gcf_slow_walk, fullfile(savePath, 'line_slow_walk.png'), 'Resolution', 300);
 
 % 保存快走图形
-exportgraphics(gcf_fast_walk, fullfile(savePath, 'Line_fast_walk.png'), 'Resolution', 300);
+exportgraphics(gcf_fast_walk, fullfile(savePath, 'fast_walk.png'), 'Resolution', 300);
 
 % 保存慢跑图形
-exportgraphics(gcf_slow_run, fullfile(savePath, 'Line_slow_run.png'), 'Resolution', 300);
+exportgraphics(gcf_slow_run, fullfile(savePath, 'slow_run.png'), 'Resolution', 300);
 
 % 保存快跑图形
-exportgraphics(gcf_fast_run, fullfile(savePath, 'Line_fast_run.png'), 'Resolution', 300);
+exportgraphics(gcf_fast_run, fullfile(savePath, 'fast_run.png'), 'Resolution', 300);
 
 
 

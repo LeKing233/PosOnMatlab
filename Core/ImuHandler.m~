@@ -45,7 +45,7 @@ classdef ImuHandler <handle
             %执行一些初始化运算
             obj.init();
     
-             if isfield(settings.Results,'gaitphase_thresold')
+             if isfield(settings.Results,gaitphase_thresold)
                 obj.mGaitDtr.threshold = settings.Results.gaitphase_thresold;
              end
             
