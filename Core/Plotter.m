@@ -1325,6 +1325,8 @@ classdef Plotter
 
         % @brief 绘制方形
         % @param stateCalrArray实例数组
+        % @retval None% @brief 绘制方形
+        % @param stateCalrArray实例数组
         % @retval None
         function gcf = plot_Tracks_Square(stateCalrArray,varargin)
             %解析参数
@@ -1338,8 +1340,8 @@ classdef Plotter
 
             stateCalrArray = Plotter.toArray(stateCalrArray);
             gcf = figure("Name","Square");%创建图窗
-%             set(gca, 'Color', 'none');            % 设置坐标区域背景为透明
-%             set(gcf, 'Color', 'none');            % 设置图形背景为透明
+            %             set(gca, 'Color', 'none');            % 设置坐标区域背景为透明
+            %             set(gcf, 'Color', 'none');            % 设置图形背景为透明
 
             %绘制Proposed
             P1 = stateCalrArray(1).mStateSeq.P';
@@ -1381,7 +1383,7 @@ classdef Plotter
             P1_angle = settings.Results.P1_angle;
             P2_angle = settings.Results.P2_angle;
             refTrackIndex = settings.Results.refTrackIndex;
-            
+
             % 将 stateCalrArray 转换为数组
             stateCalrArray = Plotter.toArray(stateCalrArray);
 
@@ -1409,15 +1411,15 @@ classdef Plotter
                     0, -12, -13, -68.99, -69.15, -84.55, -86.64, -2.6, 0;  % x 坐标
                     0, 0, 9, 9.5, 0.22, 1.54, -81.84, -80.66, 0       % y 坐标
                     ];
-            
 
-%                 trajectory_ref = [
-%                     0, -12, -14.4, -67.8, -68.6,-84.9, -89.2, -3.57, 0;  % x 坐标
-%                     0, -2.5, 5.69, 5.69,-2.33, -2.58, -83.18, -89.01, 0       % y 坐标
-%                     ];
-      
+
+                %                 trajectory_ref = [
+                %                     0, -12, -14.4, -67.8, -68.6,-84.9, -89.2, -3.57, 0;  % x 坐标
+                %                     0, -2.5, 5.69, 5.69,-2.33, -2.58, -83.18, -89.01, 0       % y 坐标
+                %                     ];
+
             end
-     
+
             % 提取 x 和 y 坐标
             x_ref = trajectory_ref(1, :);
             y_ref = trajectory_ref(2, :);
@@ -1438,7 +1440,7 @@ classdef Plotter
             legend('show');
             set(gca, 'FontSize', 12);
         end
-        
+
 
 
         % @brief 绘制机械楼数组
@@ -1461,11 +1463,11 @@ classdef Plotter
             % 创建图窗并最大化显示（保留工具栏和菜单栏）
             gcf = figure('Name', 'JiXieLouArray'); % 创建图窗
             set(gcf, 'WindowState', 'maximized'); % 将图窗最大化显示
-            
+
             for i = 1:length(stateCalrArray)
                 % 绘制
                 P1 = stateCalrArray(i).mStateSeq.P';
-     
+
                 P1_adjust = TrackAdjuster.rotate2D(P1(1,:), P1(2,:), P1_angle);
                 str = "track " + num2str(i);
                 plot(P1_adjust(1,:), P1_adjust(2,:), 'LineWidth', 2, 'DisplayName', str); hold on;
@@ -1483,13 +1485,13 @@ classdef Plotter
                     0, -0, 5.69, 5.69,-2.33, -2.58, -83.18, -85, 0       % y 坐标
                     ];
 
-%                 trajectory_ref = [
-%                     0, -12, -14.4, -67.8, -68.6,-84.9, -89.2, -3.57, 0;  % x 坐标
-%                     0, -2.5, 5.69, 5.69,-2.33, -2.58, -83.18, -89.01, 0       % y 坐标
-%                     ];
-      
+                %                 trajectory_ref = [
+                %                     0, -12, -14.4, -67.8, -68.6,-84.9, -89.2, -3.57, 0;  % x 坐标
+                %                     0, -2.5, 5.69, 5.69,-2.33, -2.58, -83.18, -89.01, 0       % y 坐标
+                %                     ];
+
             end
-     
+
             % 提取 x 和 y 坐标
             x_ref = trajectory_ref(1, :);
             y_ref = trajectory_ref(2, :);
@@ -1511,156 +1513,232 @@ classdef Plotter
         % @brief 绘制直线
         % @param stateCalrArray实例数组
         % @retval None
-%         function gcf = plot_Tracks_Line(stateCalrArray,varargin)
-%             %解析参数
-%             settings = inputParser;
-%             addParameter(settings,'exprName',"");%P1的旋转角度
-%             parse(settings,varargin{:});
-%             exprName = settings.Results.exprName;
-%             
-% 
-% 
-%             % 将 stateCalrArray 转换为数组
-%             stateCalrArray = Plotter.toArray(stateCalrArray);
-% 
-%             % 创建图窗并最大化显示（保留工具栏和菜单栏）
-%             gcf = figure('Name', 'Line'); % 创建图窗
-%             set(gcf, 'WindowState', 'maximized'); % 将图窗最大化显示
-%             
-%             % 读取背景图片
-%             backgroundImage = imread('操场地图.png'); % 替换成你想用作背景的图片路径
-%             % 显示背景图片并调整坐标轴
-%             imshow(backgroundImage, 'XData', [0 1], 'YData', [0 1]); % 调整坐标范围以适配
-%             hold on;
-%             
-%             
-%             for i = 1:length(stateCalrArray)
-%                 % 绘制
-%                 P1 = stateCalrArray(i).mStateSeq.P';
-%                 i
-%                 X_mean = mean(P1(1,:))
-%                 Y_mean = mean(P1(2,:))
-%                 P1_angle =  rad2deg(-atan2(mean(P1(2,:)) , mean(P1(1,:))))
-%                 P1_adjust = TrackAdjuster.rotate2D(P1(1,:), P1(2,:), P1_angle);
-%                 str = "track " + num2str(i);
-%                 plot(P1_adjust(1,:), P1_adjust(2,:), 'r-', 'LineWidth',0.5, 'DisplayName', str); hold on;
-%             end
-% 
-% 
-% 
-% 
-%             %             % 定义参考轨迹
-%             %             trajectory_ref = [
-%             %                 0, -16.5, -17, -68.99, -69.15, -84.55, -86.64, -2.6, 0;  % x 坐标
-%             %                 0, 2, 10.33, 8.49, 0.22, -1.54, -81.84, -80.66, 0       % y 坐标
-%             %                 ];
-%             %
-%             %             % 提取 x 和 y 坐标
-%             %             x_ref = trajectory_ref(1, :);
-%             %             y_ref = trajectory_ref(2, :);
-%             %
-%             %             % 绘制参考轨迹
-%             %             plot(x_ref, y_ref, 'g--', 'LineWidth', 2, 'DisplayName', 'Reference Path');
-%             %
-%             %             % 绘制结束点
-%             %             plot(P1_adjust(1,end), P1_adjust(2,end), 'ro', 'LineWidth', 2, 'DisplayName', 'Proposed ZUPT EndPoint'); hold on;
-%             %             plot(P2_adjust(1,end), P2_adjust(2,end), 'bo', 'LineWidth', 2, 'DisplayName', 'Traditional ZUPT EndPoint'); hold on;
-% 
-%             % 标注
-%             xlabel('X方向/米', 'FontSize', 16);
-%             ylabel('Y方向/米', 'FontSize', 16);
-%             titleStr = exprName + "直线测试图";
-%             title(titleStr);
-%             grid on;
-%             axis equal;
-%             legend('show');
-%             set(gca, 'FontSize', 12);
-%         end
-        
-
-
-      function gcf = plot_Tracks_Line(stateCalrArray, varargin)
-    % 解析参数
-    settings = inputParser;
-    addParameter(settings, 'exprName', ""); % P1的旋转角度
-    parse(settings, varargin{:});
-    exprName = settings.Results.exprName;
-    
-    % 将 stateCalrArray 转换为数组
-    stateCalrArray = Plotter.toArray(stateCalrArray);
-    
-    % 创建图窗并最大化显示
-    gcf = figure('Name', 'Line');
-    set(gcf, 'WindowState', 'maximized');
-    
-
-    % 获取所有数据的 X 和 Y 范围
-    allX = [];
-    allY = [];
-    % 遍历 stateCalrArray 并绘制数据
-    for i = 1:length(stateCalrArray)
-        P1 = stateCalrArray(i).mStateSeq.P';
-        
-        % 计算平均值和旋转角度
-        P1_angle = rad2deg(-atan2(mean(P1(2, :)), mean(P1(1, :))));
-        
-        % 调整轨迹旋转角度
-        P1_adjust = TrackAdjuster.rotate2D(P1(1, :), P1(2, :), P1_angle);
-        
-        allX = [allX, P1_adjust(1, :)];
-        allY = [allY, P1_adjust(2, :)];
-    end
-    
- 
-    minX = min(allX)
-    maxX = max(allX)
-    minY = min(allY)
-    maxY = max(allY)
-    
-    % 读取背景图片
-    backgroundImage = imread('操场地图.png'); % 替换成你想用作背景的图片路径
-    
-    % 显示背景图片并将其缩放到数据范围
-    imagesc([minX maxX], [minY maxY], flipud(backgroundImage)); 
-    colormap gray; % 设置颜色映射，如果需要不同的背景颜色可以调整
-    hold on; % 保持图窗，使其他绘图可以叠加在背景图上
-    
-    % 调整坐标轴
-    axis on; % 打开坐标轴
-    set(gca, 'YDir', 'normal'); % 确保 Y 轴方向正常
-    axis equal; % 保持比例
-    xlim([minX maxX]); % 根据数据范围调整 X 轴
-    ylim([minY maxY]); % 根据数据范围调整 Y 轴
-    
-    % 遍历 stateCalrArray 并绘制数据
-    for i = 1:length(stateCalrArray)
-        P1 = stateCalrArray(i).mStateSeq.P';
-        
-        % 计算平均值和旋转角度
-        P1_angle = rad2deg(-atan2(mean(P1(2, :)), mean(P1(1, :))));
-        
-        % 调整轨迹旋转角度
-        P1_adjust = TrackAdjuster.rotate2D(P1(1, :), P1(2, :), P1_angle);
-        
-        % 绘制轨迹
-        str = "track " + num2str(i);
-        plot(P1_adjust(1, :), P1_adjust(2, :), 'r-', 'LineWidth', 0.5, 'DisplayName', str); 
-        hold on;
-    end
-    
-    % 标注和图例
-    xlabel('X方向/米', 'FontSize', 16);
-    ylabel('Y方向/米', 'FontSize', 16);
-    titleStr = exprName + " 直线测试图";
-    title(titleStr);
-    grid on;
-    axis equal;
-    legend('show');
-    set(gca, 'FontSize', 12);
-end
+        function gcf = plot_Tracks_Line(stateCalrArray,varargin)
+            %解析参数
+            settings = inputParser;
+            addParameter(settings,'exprName',"");%P1的旋转角度
+            parse(settings,varargin{:});
+            exprName = settings.Results.exprName;
 
 
 
+            % 将 stateCalrArray 转换为数组
+            stateCalrArray = Plotter.toArray(stateCalrArray);
+
+            % 创建图窗并最大化显示（保留工具栏和菜单栏）
+            titleStr = exprName + "直线测试图";
+            gcf = figure('Name', titleStr); % 创建图窗
+            set(gcf, 'WindowState', 'maximized'); % 将图窗最大化显示
+
+
+            for i = 1:length(stateCalrArray)
+                % 绘制
+                P1 = stateCalrArray(i).mStateSeq.P';
+                i
+                X_mean = mean(P1(1,:))
+                Y_mean = mean(P1(2,:))
+                P1_angle =  rad2deg(-atan2(mean(P1(2,:)) , mean(P1(1,:))))
+                P1_adjust = TrackAdjuster.rotate2D(P1(1,:), P1(2,:), P1_angle);
+                str = "track " + num2str(i);
+                plot(P1_adjust(1,:), P1_adjust(2,:), 'r-', 'LineWidth',0.5, 'DisplayName', str); hold on;
+            end
+
+
+
+
+            %             % 定义参考轨迹
+            %             trajectory_ref = [
+            %                 0, -16.5, -17, -68.99, -69.15, -84.55, -86.64, -2.6, 0;  % x 坐标
+            %                 0, 2, 10.33, 8.49, 0.22, -1.54, -81.84, -80.66, 0       % y 坐标
+            %                 ];
+            %
+            %             % 提取 x 和 y 坐标
+            %             x_ref = trajectory_ref(1, :);
+            %             y_ref = trajectory_ref(2, :);
+            %
+            %             % 绘制参考轨迹
+            %             plot(x_ref, y_ref, 'g--', 'LineWidth', 2, 'DisplayName', 'Reference Path');
+            %
+            %             % 绘制结束点
+            %             plot(P1_adjust(1,end), P1_adjust(2,end), 'ro', 'LineWidth', 2, 'DisplayName', 'Proposed ZUPT EndPoint'); hold on;
+            %             plot(P2_adjust(1,end), P2_adjust(2,end), 'bo', 'LineWidth', 2, 'DisplayName', 'Traditional ZUPT EndPoint'); hold on;
+
+            % 标注
+            xlabel('X方向/米', 'FontSize', 16);
+            ylabel('Y方向/米', 'FontSize', 16);
+
+            title(titleStr);
+            grid on;
+            axis equal;
+            legend('show');
+            set(gca, 'FontSize', 12);
+        end
+
+
+
+        %      function gcf = plot_Tracks_Line(stateCalrArray, varargin)
+        %     % 解析参数
+        %     settings = inputParser;
+        %     addParameter(settings, 'exprName', ""); % P1的旋转角度
+        %     parse(settings, varargin{:});
+        %     exprName = settings.Results.exprName;
+        %
+        %     % 将 stateCalrArray 转换为数组
+        %     stateCalrArray = Plotter.toArray(stateCalrArray);
+        %
+        %     % 创建图窗并最大化显示
+        %     gcf = figure('Name', 'Line');
+        %     set(gcf, 'WindowState', 'maximized');
+        %
+        %
+        %     % 获取所有数据的 X 和 Y 范围
+        %     allX = [];
+        %     allY = [];
+        %     % 遍历 stateCalrArray 并绘制数据
+        %     for i = 1:length(stateCalrArray)
+        %         P1 = stateCalrArray(i).mStateSeq.P';
+        %
+        %         % 计算平均值和旋转角度
+        %         P1_angle = rad2deg(-atan2(mean(P1(2, :)), mean(P1(1, :))));
+        %
+        %         % 调整轨迹旋转角度
+        %         P1_adjust = TrackAdjuster.rotate2D(P1(1, :), P1(2, :), P1_angle);
+        %
+        %         allX = [allX, P1_adjust(1, :)];
+        %         allY = [allY, P1_adjust(2, :)];
+        %     end
+        %
+        %
+        %     minX = min(allX)
+        %     maxX = max(allX)
+        %     minY = min(allY)
+        %     maxY = max(allY)
+        %
+        %     % 读取背景图片
+        %     backgroundImage = imread('操场地图.png'); % 替换成你想用作背景的图片路径
+        %
+        %     % 显示背景图片并将其缩放到数据范围
+        %     imagesc([minX maxX], [minY maxY], flipud(backgroundImage));
+        %     colormap gray; % 设置颜色映射，如果需要不同的背景颜色可以调整
+        %     hold on; % 保持图窗，使其他绘图可以叠加在背景图上
+        %
+        %     % 调整坐标轴
+        %     axis on; % 打开坐标轴
+        %     set(gca, 'YDir', 'normal'); % 确保 Y 轴方向正常
+        %     axis equal; % 保持比例
+        %     xlim([minX maxX]); % 根据数据范围调整 X 轴
+        %     ylim([minY maxY]); % 根据数据范围调整 Y 轴
+        %
+        %     % 遍历 stateCalrArray 并绘制数据
+        %     for i = 1:length(stateCalrArray)
+        %         P1 = stateCalrArray(i).mStateSeq.P';
+        %
+        %         % 计算平均值和旋转角度
+        %         P1_angle = rad2deg(-atan2(mean(P1(2, :)), mean(P1(1, :))));
+        %
+        %         % 调整轨迹旋转角度
+        %         P1_adjust = TrackAdjuster.rotate2D(P1(1, :), P1(2, :), P1_angle);
+        %
+        %         % 绘制轨迹
+        %         str = "track " + num2str(i);
+        %         plot(P1_adjust(1, :), P1_adjust(2, :), 'r-', 'LineWidth', 0.5, 'DisplayName', str);
+        %         hold on;
+        %     end
+        %
+        %     % 标注和图例
+        %     xlabel('X方向/米', 'FontSize', 16);
+        %     ylabel('Y方向/米', 'FontSize', 16);
+        %     titleStr = exprName + " 直线测试图";
+        %     title(titleStr);
+        %     grid on;
+        %     axis equal;
+        %     legend('show');
+        %     set(gca, 'FontSize', 12);
+        % end
+
+        % @brief 绘制操场
+        % @param stateCalrArray实例数组
+        % @retval None
+        function gcf = plot_Tracks_Playground(stateCalrArray, varargin)
+            % 解析参数
+            settings = inputParser;
+            addParameter(settings, 'exprName', ""); % P1的旋转角度
+            addParameter(settings,'P1_angle',50);%P1的旋转角度
+            addParameter(settings,'P2_angle',50);%P2的旋转角度
+            parse(settings, varargin{:});
+            exprName = settings.Results.exprName;
+            P1_angle = settings.Results.P1_angle;
+            P2_angle = settings.Results.P2_angle;
+
+            % 将 stateCalrArray 转换为数组
+            stateCalrArray = Plotter.toArray(stateCalrArray);
+
+            % 创建图窗并最大化显示（保留工具栏和菜单栏）
+            titleStr = exprName + "直线测试图";
+            gcf = figure('Name', titleStr); % 创建图窗
+            set(gcf, 'WindowState', 'maximized'); % 将图窗最大化显示
+
+
+            % 获取所有数据的 X 和 Y 范围
+            allX = [];
+            allY = [];
+           
+            P1 = stateCalrArray(1).mStateSeq.P';
+            P2 = stateCalrArray(2).mStateSeq.P';
+
+            % 调整轨迹旋转角度
+            P1_adjust = TrackAdjuster.rotate2D(P1(1, :), P1(2, :), P1_angle);
+            P2_adjust = TrackAdjuster.rotate2D(P2(1, :), P2(2, :), P2_angle);
+
+            allX = [allX, P1_adjust(1, :)];
+            allY = [allY, P1_adjust(2, :)];
+            allX = [allX, P2_adjust(1, :)];
+            allY = [allY, P2_adjust(2, :)];
+
+
+            minX = min(allX);
+            maxX = max(allX);
+            minY = min(allY);
+            maxY = max(allY);
+
+            % 读取背景图片
+            backgroundImage = imread('操场地图.png'); % 替换成你想用作背景的图片路径
+
+            % 显示背景图片并将其缩放到数据范围
+            imagesc([minX maxX], [minY maxY], flipud(backgroundImage));
+            colormap gray; % 设置颜色映射，如果需要不同的背景颜色可以调整
+            hold on; % 保持图窗，使其他绘图可以叠加在背景图上
+
+            % 调整坐标轴
+            axis on; % 打开坐标轴
+            set(gca, 'YDir', 'normal'); % 确保 Y 轴方向正常
+            axis equal; % 保持比例
+            xlim([minX maxX]); % 根据数据范围调整 X 轴
+            ylim([minY maxY]); % 根据数据范围调整 Y 轴
+
+            %绘制Proposed
+            P1 = stateCalrArray(1).mStateSeq.P';
+            P1_adjust = TrackAdjuster.rotate2D(P1(1,:),P1(2,:),P1_angle);
+            plot(P1_adjust(1,:),P1_adjust(2,:),'r-','LineWidth',2,'DisplayName','Proposed ZUPT');hold on;
+
+            %绘制Traditional
+            P2 = stateCalrArray(2).mStateSeq.P';
+            P2_adjust = TrackAdjuster.rotate2D(P2(1,:),P2(2,:),P2_angle);
+            plot(P2_adjust(1,:),P2_adjust(2,:),'b-','LineWidth',2,'DisplayName','Traditional ZUPT');hold on;
+
+               
+          
+
+            % 标注和图例
+            xlabel('X方向/米', 'FontSize', 16);
+            ylabel('Y方向/米', 'FontSize', 16);
+            titleStr = exprName + " 直线测试图";
+            title(titleStr);
+            grid on;
+            axis equal;
+            legend('show');
+            set(gca, 'FontSize', 12);
+        end
     end
 end
 
