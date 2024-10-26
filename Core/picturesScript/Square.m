@@ -192,16 +192,16 @@ savePath = './output/'; % 你可以根据需求更改保存的路径
 % end
 
 % 保存慢走图形
-exportgraphics(gcf_slow_walk, fullfile(savePath, 'slow_walk.png'), 'Resolution', 300);
+exportgraphics(gcf_slow_walk, fullfile(savePath, 'Square_slow_walk.png'), 'Resolution', 300, 'BackgroundColor', 'none');
 
 % 保存快走图形
-exportgraphics(gcf_fast_walk, fullfile(savePath, 'fast_walk.png'), 'Resolution', 300);
+exportgraphics(gcf_fast_walk, fullfile(savePath, 'Square_fast_walk.png'), 'Resolution', 300, 'BackgroundColor', 'none');
 
 % 保存慢跑图形
-exportgraphics(gcf_slow_run, fullfile(savePath, 'slow_run.png'), 'Resolution', 300);
+exportgraphics(gcf_slow_run, fullfile(savePath, 'Square_slow_run.png'), 'Resolution', 300, 'BackgroundColor', 'none');
 
 % 保存快跑图形
-exportgraphics(gcf_fast_run, fullfile(savePath, 'fast_run.png'), 'Resolution', 300);
+exportgraphics(gcf_fast_run, fullfile(savePath, 'Square_fast_run.png'), 'Resolution', 300, 'BackgroundColor', 'none');
 
 
 

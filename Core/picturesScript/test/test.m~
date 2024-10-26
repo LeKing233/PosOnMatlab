@@ -1,0 +1,52 @@
+%% 1
+% 假设有一些轨迹数据
+figure;
+hold on;
+
+% 绘制几条轨迹（示例数据）
+plot(rand(10,1), rand(10,1), '-o', 'DisplayName', '轨迹1');
+plot(rand(10,1), rand(10,1), '-x', 'DisplayName', '轨迹2');
+plot(rand(10,1), rand(10,1), '-s', 'DisplayName', '轨迹3');
+
+% 添加图例
+legend show;
+
+% 设置坐标区背景颜色为透明
+set(gca, 'Color', 'none');
+
+% 导出图像
+set(gcf, 'Color', 'none'); % 设置整个图像背景透明
+exportgraphics(gcf, 'transparent_trajectory.png', 'BackgroundColor', 'none');
+
+
+%% 向量图 
+% 创建一个新图形窗口
+figure;
+
+% 绘制几条随机轨迹
+hold on;
+
+% 绘制轨迹1
+plot(rand(10,1), rand(10,1), '-o', 'DisplayName', '轨迹1', 'LineWidth', 2);
+% 绘制轨迹2
+plot(rand(10,1), rand(10,1), '-x', 'DisplayName', '轨迹2', 'LineWidth', 2);
+% 绘制轨迹3
+plot(rand(10,1), rand(10,1), '-s', 'DisplayName', '轨迹3', 'LineWidth', 2);
+
+% 添加图例
+legend show;
+
+% 设置坐标轴背景为透明
+set(gca, 'Color', 'none');
+set(gcf, 'Color', 'none'); % 设置整个图形背景透明
+
+% 导出为 PDF 向量图
+print(gcf, 'trajectory_plot.pdf', '-dpdf');
+
+
+
+
+
+
+
+
