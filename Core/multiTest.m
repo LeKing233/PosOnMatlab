@@ -48,18 +48,18 @@ stateCalrArray = [
 %  StateCalculator(ImuHandler([rootPath 'Imu_操场4h.csv']),PlantarHandler([rootPath 'Plantar_操场4h.csv'])), 
 
 %方形————所有数据集
-StateCalculator(ImuHandler([rootPath 'Imu_方形a1.csv']),PlantarHandler([rootPath 'Plantar_方形a1.csv'])),    
-StateCalculator(ImuHandler([rootPath 'Imu_方形a2.csv']),PlantarHandler([rootPath 'Plantar_方形a2.csv'])), 
-StateCalculator(ImuHandler([rootPath 'Imu_方形a3.csv']),PlantarHandler([rootPath 'Plantar_方形a3.csv'])), 
-StateCalculator(ImuHandler([rootPath 'Imu_方形a4.csv']),PlantarHandler([rootPath 'Plantar_方形a4.csv'])), 
-StateCalculator(ImuHandler([rootPath 'Imu_方形a5.csv']),PlantarHandler([rootPath 'Plantar_方形a5.csv'])), 
-StateCalculator(ImuHandler([rootPath 'Imu_方形a6.csv']),PlantarHandler([rootPath 'Plantar_方形a6.csv'])), 
-StateCalculator(ImuHandler([rootPath 'Imu_方形h1.csv']),PlantarHandler([rootPath 'Plantar_方形h1.csv'])),    
-StateCalculator(ImuHandler([rootPath 'Imu_方形h2.csv']),PlantarHandler([rootPath 'Plantar_方形h2.csv'])), 
-StateCalculator(ImuHandler([rootPath 'Imu_方形h3.csv']),PlantarHandler([rootPath 'Plantar_方形h3.csv'])), 
-StateCalculator(ImuHandler([rootPath 'Imu_方形h4.csv']),PlantarHandler([rootPath 'Plantar_方形h4.csv'])), 
-StateCalculator(ImuHandler([rootPath 'Imu_方形h5.csv']),PlantarHandler([rootPath 'Plantar_方形h5.csv'])), 
-StateCalculator(ImuHandler([rootPath 'Imu_方形h6.csv']),PlantarHandler([rootPath 'Plantar_方形h6.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形a1.csv']),PlantarHandler([rootPath 'Plantar_方形a1.csv'])),    
+% StateCalculator(ImuHandler([rootPath 'Imu_方形a2.csv']),PlantarHandler([rootPath 'Plantar_方形a2.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形a3.csv']),PlantarHandler([rootPath 'Plantar_方形a3.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形a4.csv']),PlantarHandler([rootPath 'Plantar_方形a4.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形a5.csv']),PlantarHandler([rootPath 'Plantar_方形a5.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形a6.csv']),PlantarHandler([rootPath 'Plantar_方形a6.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形h1.csv']),PlantarHandler([rootPath 'Plantar_方形h1.csv'])),    
+% StateCalculator(ImuHandler([rootPath 'Imu_方形h2.csv']),PlantarHandler([rootPath 'Plantar_方形h2.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形h3.csv']),PlantarHandler([rootPath 'Plantar_方形h3.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形h4.csv']),PlantarHandler([rootPath 'Plantar_方形h4.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形h5.csv']),PlantarHandler([rootPath 'Plantar_方形h5.csv'])), 
+% StateCalculator(ImuHandler([rootPath 'Imu_方形h6.csv']),PlantarHandler([rootPath 'Plantar_方形h6.csv'])), 
 
 %方形————修改参数
 % StateCalculator(ImuHandler([rootPath 'Imu_方形a1.csv']),PlantarHandler([rootPath 'Plantar_方形a1.csv']),'ZUP_noiseW', 0.02,'ZUP_noiseF', 100,'ZUP_noiseG', 300), 
@@ -78,6 +78,9 @@ StateCalculator(ImuHandler([rootPath 'Imu_方形h6.csv']),PlantarHandler([rootPa
 % StateCalculator(ImuHandler([rootPath 'Imu_方形a1.csv']),PlantarHandler([rootPath 'Plantar_方形a1.csv']),'ZUP_noiseW', 0.02,'ZUP_noiseF', 600,'ZUP_noiseG', 1000),
 % StateCalculator(ImuHandler([rootPath 'Imu_方形a1.csv']),PlantarHandler([rootPath 'Plantar_方形a1.csv']),'ZUP_noiseW', 0.02,'ZUP_noiseF', 600,'ZUP_noiseG', 1200),
 % StateCalculator(ImuHandler([rootPath 'Imu_方形a1.csv']),PlantarHandler([rootPath 'Plantar_方形a1.csv']),'ZUP_noiseW', 0.02,'ZUP_noiseF', 600,'ZUP_noiseG', 1500),
+
+
+
 
 
 ];

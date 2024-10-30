@@ -12,6 +12,15 @@ classdef ImuHandler <handle
         phi0;%初始角度
         mSeqLength;%数据条目数
         w_origin_deviation;%角速度零偏
+
+        %校准用
+        gyroCaliFilePath;   %陀螺仪校准数据文件地址
+        magCaliFilePath;    %磁力计校准数据文件地址
+        gyroCalSeq;%陀螺仪校准序列
+        magCalSeq%磁力计校准序列
+        sensorCali;
+        gcRawData;          %陀螺仪校准数据
+        mcRawData;          %磁力计校准数据
     end
     
 
@@ -24,20 +33,27 @@ classdef ImuHandler <handle
             settings = inputParser;
             addParameter(settings,'w_origin_deviation',[0,0,0]);%陀螺仪零偏
             addParameter(settings,'gaitphase_thresold',7.8);%步态检测器阈值
+            addParameter(settings,'gyroFilePath','');
+            addParameter(settings,'magFilePath','');
+            
 
             parse(settings,varargin{:});
             obj.w_origin_deviation = settings.Results.w_origin_deviation;
-            
-           
-
+            obj.gyroCaliFilePath  = settings.Results.gyroFilePath;
+            obj.magCaliFilePath  = settings.Results.magFilePath;
             obj.mFilePath = filePath;
+            
             obj.extractData();
             
             %校准零偏
             if nargin >1
                 if ~isequal(obj.w_origin_deviation,[0,0,0])
                     obj.mWSeq = obj.mWSeq - obj.w_origin_deviation';
-                end
+                elseif ~isempty(obj.gyroCaliFilePath)&&~isempty(obj.magCaliFilePath)
+                    obj.sensorCalibrationByFile();
+                    disp("执行了新版零偏校准！");
+                end        
+
             else
                 obj.sensorCalibration();
             end
@@ -51,7 +67,7 @@ classdef ImuHandler <handle
             
             
         end
-
+        
 
         % @brief 提取数据
         % @param None
@@ -70,12 +86,53 @@ classdef ImuHandler <handle
             %             obj.phi0 = [obj.mRawData.AngleX(1);
             %                     obj.mRawData.AngleY(1);
             %                     obj.mRawData.AngleZ(1)];
+            
+            if ~isempty(obj.gyroCaliFilePath)
+                obj.gcRawData = readtable(obj.gyroCaliFilePath);
+                obj.gyroCalSeq = [obj.gcRawData.AngularVelX';
+                            obj.gcRawData.AngularVelY';
+                            obj.gcRawData.AngularVelZ'];
+            else
+                obj.gyroCalSeq = [];
+            end
+            
+            if ~isempty(obj.magCaliFilePath)
+                obj.mcRawData = readtable(obj.magCaliFilePath);        
+                obj.magCalSeq = [obj.mcRawData.MagX';
+                                obj.mcRawData.MagY';
+                                obj.mcRawData.MagZ'];
+            else
+                obj.magCalSeq = [];
+            end
+            
+
             obj.mTSeq = obj.mRawData.Timestamp';
             obj.checkFrameDrop();
             obj.interpolateMissingFrames();
             
             
         end
+        
+        % @brief 传感器零偏校准 
+        % @param None
+        % @retval None
+        function sensorCalibrationByFile(obj)
+            obj.sensorCali = Calibration(obj.gyroCalSeq, obj.magCalSeq);
+            obj.mWSeq = obj.mWSeq - obj.sensorCali.getGyroCali();
+            [center, scale_zoom] = obj.sensorCali.getMagCali();
+            obj.mMSeq = (obj.mMSeq - center).*scale_zoom;
+
+            disp('gyroBias:');
+            disp(obj.sensorCali);
+            disp('magCenter:');
+            disp(center);
+            disp('magScale:');
+            disp(scale_zoom);
+
+        end
+        
+    
+
 
         % @brief 传感器零偏校准
         % @param None

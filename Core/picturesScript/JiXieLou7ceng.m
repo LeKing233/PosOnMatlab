@@ -395,7 +395,7 @@ Plotter.plot_Tracks_JiXieLou(stateCalrArray_slow_run,'P1_angle',5,'P2_angle',5,'
 % Plotter.plot_Tracks_JiXieLou(stateCalrArray_slow_run,'P1_angle',-18,'P2_angle',5,'refTrackIndex',2);
 
 %% 绘图————快跑
-addpath('..');%添加路径
+
 % 清除工作区
 % clear;
 close all;
@@ -450,3 +450,173 @@ end
 
 % Plotter.plot_Tracks_JiXieLou(stateCalrArray_fast_run,'P1_angle',-18,'P2_angle',0,'refTrackIndex',2);
 Plotter.plot_Tracks_JiXieLou_Array(stateCalrArray_fast_run,'P1_angle',-18);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%% 出图——计算层
+
+addpath('..');%添加路径
+% 清除工作区
+clear;
+close all;
+clc;
+rootPath = '../../RawData/老数据/机械楼/';
+
+
+stateCalrArray_slow_walk = [
+StateCalculator(ImuHandler([rootPath 'Imu_chl_0621_七楼一圈第一次.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_机械楼7层1圈.csv']), ...
+'ZUP_noiseF', 300, 'ZUP_noiseV', 95,'ZUP_noiseG', 250,'ZUP_noiseW', 0.6,'ZUP_noiseM', 170,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+StateCalculator(ImuHandler([rootPath 'Imu_chl_0621_七楼一圈第一次.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_机械楼7层1圈.csv']), ...
+'ZUP_noiseF', 320, 'ZUP_noiseV', 95,'ZUP_noiseG', 250,'ZUP_noiseW', 0.6,'ZUP_noiseM', 170,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+];
+
+for i = 1:length(stateCalrArray_slow_walk)
+   str = "data " + num2str(i); % 连接字符串
+   stateCalrArray_slow_walk(i).solveState(str);
+end
+
+
+gcf_jxl7_slow_walk = Plotter.plot_Tracks_JiXieLou(stateCalrArray_slow_walk,'P1_angle',5,'P2_angle',5);
+
+
+%快走
+
+stateCalrArray_fast_walk = [
+StateCalculator(ImuHandler([rootPath 'Imu_chl_0621_七楼一圈第二次.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_机械楼7层1圈.csv']), ...
+'ZUP_noiseF', 300, 'ZUP_noiseV', 95,'ZUP_noiseG', 250,'ZUP_noiseW', 0.6,'ZUP_noiseM', 170,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+
+StateCalculator(ImuHandler([rootPath 'Imu_chl_0621_七楼一圈第一次.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_机械楼7层1圈.csv']), ...
+'ZUP_noiseF', 300, 'ZUP_noiseV', 95,'ZUP_noiseG', 50,'ZUP_noiseW', 0.6,'ZUP_noiseM', 170,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+
+
+% StateCalculator(ImuHandler([rootPath 'Imu_chl_0621_七楼一圈第二次.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_机械楼7层1圈.csv']), ...
+% 'ZUP_noiseF', 300, 'ZUP_noiseV', 85,'ZUP_noiseG', 250,'ZUP_noiseW', 0.6,'ZUP_noiseM', 170,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+% StateCalculator(ImuHandler([rootPath 'Imu_chl_0620_七楼一圈第一次.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_机械楼7层1圈.csv']), ...
+% 'ZUP_noiseF', 300, 'ZUP_noiseV', 95,'ZUP_noiseG', 250,'ZUP_noiseW', 0.6,'ZUP_noiseM', 170,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+
+];
+
+for i = 1:length(stateCalrArray_fast_walk)
+   str = "data " + num2str(i); % 连接字符串
+   stateCalrArray_fast_walk(i).solveState(str);
+end
+
+
+gcf_jxl7_fast_walk = Plotter.plot_Tracks_JiXieLou(stateCalrArray_fast_walk,'P1_angle',18,'P2_angle',19);
+
+%% —慢跑
+
+
+
+
+%操场————所有数据集
+stateCalrArray_slow_run = [
+StateCalculator(ImuHandler([rootPath 'Imu_chl_0621_七楼一圈第一次.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_机械楼7层1圈.csv']), ...
+'ZUP_noiseF', 300, 'ZUP_noiseV', 95,'ZUP_noiseG', 240,'ZUP_noiseW', 0.6,'ZUP_noiseM', 170,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+% StateCalculator(ImuHandler([rootPath 'Imu_szp_7ceng_l.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_szp_7ceng_l.csv']), ...
+% 'AHRS', Utils.AHRS_MADGWICK, 'Aligner', Utils.AHRS_EKF,'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+
+StateCalculator(ImuHandler([rootPath 'Imu_chl_0621_七楼一圈第一次.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_机械楼7层1圈.csv']), ...
+'ZUP_noiseF', 300, 'ZUP_noiseV', 95,'ZUP_noiseG', 30,'ZUP_noiseW', 0.6,'ZUP_noiseM', 170,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+];
+
+for i = 1:length(stateCalrArray_slow_run)
+   str = "data " + num2str(i); % 连接字符串
+   stateCalrArray_slow_run(i).solveState(str);
+end
+
+gcf_jxl7_slow_run = Plotter.plot_Tracks_JiXieLou(stateCalrArray_slow_run,'P1_angle',5,'P2_angle',5,'refTrackIndex',1);
+% Plotter.plot_Tracks_JiXieLou(stateCalrArray_slow_run,'P1_angle',-18,'P2_angle',5,'refTrackIndex',2);
+
+%% 快跑
+
+%操场————所有数据集
+stateCalrArray_fast_run = [
+StateCalculator(ImuHandler([rootPath 'Imu_szp_7ceng_l.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_szp_7ceng_l.csv']), ...
+'AHRS', Utils.AHRS_MADGWICK, 'Aligner', Utils.AHRS_EKF,'ZUP_noiseF', 600, 'ZUP_noiseV', 100,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+StateCalculator(ImuHandler([rootPath 'Imu_chl_0621_七楼一圈第一次.csv'],'w_origin_deviation',[0,0,0]),PlantarHandler([rootPath 'Plantar_机械楼7层1圈.csv']), ...
+'ZUP_noiseF', 300, 'ZUP_noiseV', 95,'ZUP_noiseG', 20,'ZUP_noiseW', 0.6,'ZUP_noiseM', 170,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
+
+];
+
+for i = 1:length(stateCalrArray_fast_run)
+   str = "data " + num2str(i); % 连接字符串
+   stateCalrArray_fast_run(i).solveState(str);
+end
+
+gcf_jxl7_fast_run = Plotter.plot_Tracks_JiXieLou(stateCalrArray_fast_run,'P1_angle',-18,'P2_angle',0,'refTrackIndex',2);
+Plotter.plot_Tracks_JiXieLou_Array(stateCalrArray_fast_run,'P1_angle',-18);
+
+
+beep;
+
+
+
+
+
+
+%% 出图——重新计算
+clc;
+close all;
+
+gcf_jxl7_slow_walk = Plotter.plot_Tracks_JiXieLou(stateCalrArray_slow_walk,'P1_angle',5,'P2_angle',5);
+gcf_jxl7_fast_walk = Plotter.plot_Tracks_JiXieLou(stateCalrArray_fast_walk,'P1_angle',18,'P2_angle',19);
+gcf_jxl7_slow_run = Plotter.plot_Tracks_JiXieLou(stateCalrArray_slow_run,'P1_angle',5,'P2_angle',5);
+gcf_jxl7_fast_run = Plotter.plot_Tracks_JiXieLou(stateCalrArray_fast_run,'P1_angle',-18,'P2_angle',0);
+
+%% 出图——保存
+
+
+
+
+
+% 设置保存路径
+savePath = './output/'; % 你可以根据需求更改保存的路径
+% 
+% % 如果输出目录不存在，创建它
+% if ~exist(savePath, 'dir')
+%     mkdir(savePath);
+% end
+
+% 保存慢走图形
+exportgraphics(gcf_jxl7_slow_walk, fullfile(savePath, 'JiXieLou_slow_walk.png'), 'Resolution', 300);
+
+% 保存快走图形
+exportgraphics(gcf_jxl7_fast_walk, fullfile(savePath, 'JiXieLou_fast_walk.png'), 'Resolution', 300);
+
+% 保存慢跑图形
+exportgraphics(gcf_jxl7_slow_run, fullfile(savePath, 'JiXieLou_slow_run.png'), 'Resolution', 300);
+
+% 保存快跑图形
+exportgraphics(gcf_jxl7_fast_run, fullfile(savePath, 'JiXieLou_fast_run.png'), 'Resolution', 300);
+
+
+
+
+
+

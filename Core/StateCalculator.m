@@ -76,7 +76,7 @@ classdef StateCalculator <handle
             obj.pHandler = plantarHandler;
             %解析算法设置
             Algorithm_setting = inputParser;
-            addParameter(Algorithm_setting, 'Attitude', Utils.WHOLE_ATTITUDE);      %默认启用三轴姿态修正
+            addParameter(Algorithm_setting, 'Attitude', Utils.NONE_ATTITUDE);      %默认启用三轴姿态修正
             addParameter(Algorithm_setting, 'Position', Utils.VERTICAL_POSITION);   %默认启用高度修正
             addParameter(Algorithm_setting, 'Aligner', Utils.AHRS_MADGWICK);             %默认启用EKF算法
             addParameter(Algorithm_setting, 'AHRS', Utils.AHRS_EKF);                %默认启用EKF算法

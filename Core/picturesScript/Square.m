@@ -181,7 +181,24 @@ gcf_fast_run = Plotter.plot_Tracks_Square(stateCalrArray_fast_run,'P1_angle',40,
 beep;
 
 
-% 保存函数
+
+%% 出图保存
+
+
+close all;
+clc;
+
+% 重新执行绘图
+gcf_slow_walk = Plotter.plot_Tracks_Square(stateCalrArray_slow_walk,'P1_angle',33,'P2_angle',33,'xmin',-30,'xmax',5,'ymin',-10,'ymax',5);
+gcf_fast_walk = Plotter.plot_Tracks_Square(stateCalrArray_fast_walk,'P1_angle',40,'P2_angle',50,'xmin',-30,'xmax',5,'ymin',-10,'ymax',5);
+gcf_slow_run = Plotter.plot_Tracks_Square(stateCalrArray_slow_run,'P1_angle',33,'P2_angle',70,'xmin',-30,'xmax',5,'ymin',-10,'ymax',5);
+gcf_fast_run = Plotter.plot_Tracks_Square(stateCalrArray_fast_run,'P1_angle',40,'P2_angle',40,'xmin',-30,'xmax',5,'ymin',-10,'ymax',5);
+
+
+
+
+
+%% 保存
 
 % 设置保存路径
 savePath = './output/'; % 你可以根据需求更改保存的路径
@@ -192,16 +209,16 @@ savePath = './output/'; % 你可以根据需求更改保存的路径
 % end
 
 % 保存慢走图形
-exportgraphics(gcf_slow_walk, fullfile(savePath, 'Square_slow_walk.png'), 'Resolution', 300, 'BackgroundColor', 'none');
+exportgraphics(gcf_slow_walk, fullfile(savePath, 'Square_slow_walk.png'), 'Resolution', 300);
 
 % 保存快走图形
-exportgraphics(gcf_fast_walk, fullfile(savePath, 'Square_fast_walk.png'), 'Resolution', 300, 'BackgroundColor', 'none');
+exportgraphics(gcf_fast_walk, fullfile(savePath, 'Square_fast_walk.png'), 'Resolution', 300);
 
 % 保存慢跑图形
-exportgraphics(gcf_slow_run, fullfile(savePath, 'Square_slow_run.png'), 'Resolution', 300, 'BackgroundColor', 'none');
+exportgraphics(gcf_slow_run, fullfile(savePath, 'Square_slow_run.png'), 'Resolution', 300);
 
 % 保存快跑图形
-exportgraphics(gcf_fast_run, fullfile(savePath, 'Square_fast_run.png'), 'Resolution', 300, 'BackgroundColor', 'none');
+exportgraphics(gcf_fast_run, fullfile(savePath, 'Square_fast_run.png'), 'Resolution', 300);
 
 
 
