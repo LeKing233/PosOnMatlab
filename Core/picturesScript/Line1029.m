@@ -7,15 +7,11 @@ clc;
 
 rootPath = '../../RawData/1029晚上操场测试/';
 
-
-
 stateCalrArray_raw = [
-
 % V:1-300无明显变化，1000开始出现波浪，
 % F:600为合适，100,1000都会出现锯齿,1000的锯齿较为真实
 % G:300为合适，100,1000都是飘，1000会小范围飘
 % W：0.02合适
-
 
 %1号板
 StateCalculator(ImuHandler([rootPath 'Imu_直线1d10.csv']),PlantarHandler([rootPath 'Plantar_直线1d10.csv']), ...
@@ -98,7 +94,126 @@ StateCalculator(ImuHandler([rootPath 'Imu_直线3d28.csv']),PlantarHandler([root
 'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
 StateCalculator(ImuHandler([rootPath 'Imu_直线3d29.csv']),PlantarHandler([rootPath 'Plantar_直线3d29.csv']), ...
 'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+];
 
+for i = 1:length(stateCalrArray_raw)
+   str = "data " + num2str(i); % 连接字符串
+   stateCalrArray_raw(i).solveState(str);
+end
+
+Plotter.plot_Tracks_2D(stateCalrArray_raw);
+
+
+resMat = GraphCalculator.getLineErrorResult(stateCalrArray_raw,stateCalrArray_raw);
+
+Plotter.plot_Tracks_Line(stateCalrArray_raw);
+beep;
+
+
+
+
+
+
+
+
+%% 使用校准器校准——————————效果稍差
+addpath('..');%添加路径
+% 清除工作区
+clear;
+close all;
+clc;
+
+rootPath = '../../RawData/1029晚上操场测试/';
+
+stateCalrArray_raw = [
+
+% V:1-300无明显变化，1000开始出现波浪，
+% F:600为合适，100,1000都会出现锯齿,1000的锯齿较为真实
+% G:300为合适，100,1000都是飘，1000会小范围飘
+% W：0.02合适
+
+
+%1号板
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d10.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d10.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d11.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d11.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d12.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d12.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d14.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d14.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d15.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d15.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d16.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d16.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d17.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d17.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d18.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d18.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d19.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d19.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d20.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d20.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d21.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d21.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d22.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d22.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d23.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d23.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d24.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d24.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d25.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d25.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d26.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d26.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d27.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d27.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d28.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d28.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线1d29.csv'],'gyroFilePath',[rootPath 'Imu_静止1.csv'],'magFilePath',[rootPath 'Imu_八字1.csv']),PlantarHandler([rootPath 'Plantar_直线1d29.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+
+% 3号板
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d10.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d10.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d11.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d11.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d12.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d12.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d13.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d13.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d14.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d14.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d15.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d15.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d16.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d16.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d17.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d17.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d18.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d18.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d19.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d19.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d20.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d20.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d21.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d21.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d22.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d22.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d23.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d23.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d24.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d24.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d25.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d25.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d26.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d26.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d27.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d27.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d28.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d28.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+StateCalculator(ImuHandler([rootPath 'Imu_直线3d29.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_直线3d29.csv']), ...
+'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
 ];
 
 for i = 1:length(stateCalrArray_raw)
@@ -110,9 +225,10 @@ Plotter.plot_Tracks_2D(stateCalrArray_raw);
 
 
 Plotter.plot_Tracks_Line(stateCalrArray_raw);
+
+
+
 beep;
-
-
 %% 调试参数
 addpath('..');%添加路径
 % 清除工作区
@@ -909,213 +1025,6 @@ exportgraphics(gcf_traditional_slow_walk, fullfile(savePath, 'Line_traditional_s
 exportgraphics(gcf_traditional_fast_walk, fullfile(savePath, 'Line_traditional_fast_walk.png'), 'Resolution', 300);
 exportgraphics(gcf_traditional_slow_run, fullfile(savePath, 'Line_traditional_slow_run.png'), 'Resolution', 300);
 exportgraphics(gcf_traditional_fast_run, fullfile(savePath, 'Line_traditional_fast_run.png'), 'Resolution', 300);
-
-
-
-
-%% 调整阈值测试
-
-addpath('..');%添加路径
-% 清除工作区
-% clear;
-% close all;
-% clc;
-
-rootPath = '../../RawData/1015操场测试/合并/';
-thd = 3;
-
-%快跑
-stateCalrArray_fast_run = [
-
-% V:1-300无明显变化，1000开始出现波浪，
-% F:600为合适，100,1000都会出现锯齿,1000的锯齿较为真实
-% G:300为合适，100,1000都是飘，1000会小范围飘
-% W：0.02合适
-
-StateCalculator(ImuHandler([rootPath 'Imu_直线a31.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a31.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a32.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a32.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a33.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a33.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a34.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a34.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a41.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a41.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a42.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a42.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a43.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a43.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a44.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a44.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-
-StateCalculator(ImuHandler([rootPath 'Imu_直线a31.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a31.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a32.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a32.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a33.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a33.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a34.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a34.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a41.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a41.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a42.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a42.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a43.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a43.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a44.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a44.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-
-StateCalculator(ImuHandler([rootPath 'Imu_直线h31.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h31.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h32.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h32.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h33.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h33.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h34.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h34.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h41.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h41.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h42.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h42.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h43.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h43.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-
-StateCalculator(ImuHandler([rootPath 'Imu_直线h31.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h31.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h32.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h32.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h33.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h33.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h34.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h34.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h41.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h41.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h42.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h42.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h43.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h43.csv']), ...
-'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-
-];
-
-for i = 1:length(stateCalrArray_fast_run)
-   str = "data " + num2str(i); % 连接字符串
-   stateCalrArray_fast_run(i).solveState(str);
-end
-
-Plotter.plot_Tracks_2D(stateCalrArray_fast_run);
-
-
-gcf_fast_run = Plotter.plot_Tracks_Line(stateCalrArray_fast_run,'exprName','traditional——快跑');
-
-
-
-%% 调整阈值测试_2 混合
-
-addpath('..');%添加路径
-% 清除工作区
-% clear;
-% close all;
-% clc;
-
-rootPath = '../../RawData/1015操场测试/合并/';
-thd = 5;
-
-%快跑
-stateCalrArray_fast_run = [
-
-% V:1-300无明显变化，1000开始出现波浪，
-% F:600为合适，100,1000都会出现锯齿,1000的锯齿较为真实
-% G:300为合适，100,1000都是飘，1000会小范围飘
-% W：0.02合适
-
-StateCalculator(ImuHandler([rootPath 'Imu_直线a31.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a31.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a32.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a32.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a33.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a33.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a34.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a34.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a41.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a41.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a42.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a42.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a43.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a43.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a44.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a44.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-
-StateCalculator(ImuHandler([rootPath 'Imu_直线a31.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a31.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a32.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a32.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a33.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a33.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a34.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a34.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a41.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a41.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a42.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a42.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线a43.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a43.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线a44.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线a44.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-
-StateCalculator(ImuHandler([rootPath 'Imu_直线h31.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h31.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h32.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h32.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h33.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h33.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h34.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h34.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h41.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h41.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h42.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h42.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h43.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h43.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 1000,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-
-StateCalculator(ImuHandler([rootPath 'Imu_直线h31.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h31.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h32.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h32.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h33.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h33.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h34.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h34.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h41.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h41.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-StateCalculator(ImuHandler([rootPath 'Imu_直线h42.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h42.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
-StateCalculator(ImuHandler([rootPath 'Imu_直线h43.csv'],'gaitphase_thresold',thd),PlantarHandler([rootPath 'Plantar_直线h43.csv']), ...
-'ZUP_noiseF', 1000, 'ZUP_noiseV', 1000,'ZUP_noiseG', 50,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
-
-];
-
-for i = 1:length(stateCalrArray_fast_run)
-   str = "data " + num2str(i); % 连接字符串
-   stateCalrArray_fast_run(i).solveState(str);
-end
-
-Plotter.plot_Tracks_2D(stateCalrArray_fast_run);
-
-
-gcf_fast_run = Plotter.plot_Tracks_Line(stateCalrArray_fast_run,'exprName','traditional——快跑');
-
-
-
-beep;
-
-
-
-
-
-
-
-
 
 
 

@@ -1591,7 +1591,7 @@ end
             xlabel('X方向/米', 'FontSize', 30);
             ylabel('Y方向/米', 'FontSize', 30);
 
-            title(titleStr, 'FontSize', 30);
+            title(titleStr);
             grid on;
             axis equal;
             legend('show');

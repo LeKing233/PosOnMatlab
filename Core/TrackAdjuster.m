@@ -156,7 +156,16 @@ classdef TrackAdjuster
 %             legend('外圈');
 %             hold off;
         end
-
+        
+        
+        % @brief 根据均值，将图线旋转至x正半轴
+        % @param P——旋转前的轨迹
+        % @retval P_rotated——旋转后的轨迹
+        function  P_rotated = rotateByMean(P)
+            rotateAngle = rad2deg(-atan2(mean(P(2,:)) , mean(P(1,:))));
+            P_rotated = TrackAdjuster.rotate2D(P(1,:), P(2,:), rotateAngle);
+        end
+        
 
 
     end

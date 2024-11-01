@@ -1,6 +1,3 @@
-
-
-
 %% 计算所有实例
 addpath('..');%添加路径
 % 清除工作区
@@ -9,8 +6,6 @@ close all;
 clc;
 
 rootPath = '../../RawData/1015操场测试/合并/';
-
-
 
 
 %操场————所有数据集
@@ -220,6 +215,48 @@ Plotter.plot_Tracks_2D(stateCalrArray_modify);
 
 
 
+
+
+
+
+
+addpath('..');%添加路径
+% 清除工作区
+clear;
+close all;
+clc;
+
+rootPath = '../../RawData/1029晚上操场测试/';
+
+
+%% 自动校准尝试
+
+
+%操场————所有数据集
+stateCalrArray_raw = [
+StateCalculator(ImuHandler([rootPath 'Imu_操场11.csv']),PlantarHandler([rootPath 'Plantar_操场11.csv']), ...
+'AHRS', Utils.AHRS_MADGWICK, 'Aligner', Utils.AHRS_EKF,'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450), 
+StateCalculator(ImuHandler([rootPath 'Imu_操场12.csv']),PlantarHandler([rootPath 'Plantar_操场12.csv']), ...
+'AHRS', Utils.AHRS_MADGWICK, 'Aligner', Utils.AHRS_EKF,'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450), 
+StateCalculator(ImuHandler([rootPath 'Imu_操场13.csv']),PlantarHandler([rootPath 'Plantar_操场13.csv']), ...
+'AHRS', Utils.AHRS_MADGWICK, 'Aligner', Utils.AHRS_EKF,'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450), 
+StateCalculator(ImuHandler([rootPath 'Imu_操场31.csv']),PlantarHandler([rootPath 'Plantar_操场31.csv']), ...
+'AHRS', Utils.AHRS_MADGWICK, 'Aligner', Utils.AHRS_EKF,'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450), 
+StateCalculator(ImuHandler([rootPath 'Imu_操场32.csv']),PlantarHandler([rootPath 'Plantar_操场32.csv']), ...
+'AHRS', Utils.AHRS_MADGWICK, 'Aligner', Utils.AHRS_EKF,'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450), 
+
+
+StateCalculator(ImuHandler([rootPath 'Imu_操场31.csv'],'gyroFilePath',[rootPath 'Imu_静止3.csv'],'magFilePath',[rootPath 'Imu_八字3.csv']),PlantarHandler([rootPath 'Plantar_操场31.csv']), ...
+'AHRS', Utils.AHRS_MADGWICK, 'Aligner', Utils.AHRS_EKF,'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450), 
+
+];
+
+for i = 1:length(stateCalrArray_raw)
+   str = "data " + num2str(i); % 连接字符串
+   stateCalrArray_raw(i).solveState(str);
+end
+
+Plotter.plot_Tracks_2D(stateCalrArray_raw);
 
 
 
