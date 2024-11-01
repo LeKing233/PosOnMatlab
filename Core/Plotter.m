@@ -1590,12 +1590,12 @@ end
             % 标注
             xlabel('X方向/米', 'FontSize', 30);
             ylabel('Y方向/米', 'FontSize', 30);
-
+            
             title(titleStr, 'FontSize', 30);
             grid on;
             axis equal;
-            legend('show');
-            set(gca, 'FontSize', 12);
+%             legend('show');
+            set(gca, 'FontSize', 30);
         end
 
 

@@ -742,6 +742,7 @@ StateCalculator(ImuHandler([rootPathOld 'Imu_直线h42.csv']),PlantarHandler([ro
 'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4),
 StateCalculator(ImuHandler([rootPathOld 'Imu_直线h43.csv']),PlantarHandler([rootPathOld 'Plantar_直线h43.csv']), ...
 'ZUP_noiseF', 1000, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+
 ];
 
 for i = 1:length(stateCalrArray_traditional_slow_run)

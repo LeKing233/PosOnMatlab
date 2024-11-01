@@ -25,7 +25,7 @@ classdef GraphCalculator
                 %计算proposed
                 P_prod_adjust = TrackAdjuster.rotateByMean(prodArray(j).mStateSeq.P');
                 x_prod = P_prod_adjust(1,:);
-                y_prod = P_prod_adjust(2,:);
+                y_prod = abs(P_prod_adjust(2,:));
                 x_ref = min(max(x_ref, min(x_prod)), max(x_prod));
                 prodAE_Mat(:,j) =  interp1(x_prod, y_prod, x_ref, 'linear', 'extrap');
             

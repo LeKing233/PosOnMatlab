@@ -5,7 +5,9 @@ clear;
 close all;
 clc;
 
+rootPathOld = '../../RawData/1015操场测试/合并/';
 rootPath = '../../RawData/1029晚上操场测试/';
+
 
 stateCalrArray_raw = [
 % V:1-300无明显变化，1000开始出现波浪，
@@ -94,6 +96,8 @@ StateCalculator(ImuHandler([rootPath 'Imu_直线3d28.csv']),PlantarHandler([root
 'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
 StateCalculator(ImuHandler([rootPath 'Imu_直线3d29.csv']),PlantarHandler([rootPath 'Plantar_直线3d29.csv']), ...
 'ZUP_noiseF', 600, 'ZUP_noiseV', 300,'ZUP_noiseG', 300,'ZUP_noiseW', 0.02,'ZUP_noiseM', 450,'EKF_noiseF', 30,'EKF_noiseM', 50,'EKF_noiseW', 0.4), 
+
+
 ];
 
 for i = 1:length(stateCalrArray_raw)
@@ -108,6 +112,45 @@ resMat = GraphCalculator.getLineErrorResult(stateCalrArray_raw,stateCalrArray_ra
 
 Plotter.plot_Tracks_Line(stateCalrArray_raw);
 beep;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
